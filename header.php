@@ -62,11 +62,14 @@
                 ]);
                 ?>
                 
+                <!-- Navigation Links -->
+                <ul class="header-nav-links">
+                    <li><a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>"><?php _e('Career Guides', 'haupt-recruitment'); ?></a></li>
+                    <li><a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>"><?php _e('Jobs', 'haupt-recruitment'); ?></a></li>
+                </ul>
+                
                 <!-- CTA Buttons -->
                 <div class="header-actions">
-                    <a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>" class="btn btn-outline btn-sm">
-                        <?php _e('Find Jobs', 'haupt-recruitment'); ?>
-                    </a>
                     <a href="<?php echo esc_url(home_url('/contact/')); ?>" class="btn btn-primary btn-sm">
                         <?php _e('Contact Us', 'haupt-recruitment'); ?>
                     </a>

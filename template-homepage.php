@@ -57,6 +57,20 @@ $stat_years = haupt_get_stat('years');
             </a>
         </div>
         
+        <!-- Career Guides Link -->
+        <div class="hero-secondary-link" data-aos="fade-up" data-aos-delay="350">
+            <a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>" class="hero-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                <?php _e('Or browse our Career Guides', 'haupt-recruitment'); ?>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </a>
+        </div>
+        
         <!-- Hero Stats -->
         <div class="hero-stats" data-aos="fade-up" data-aos-delay="400">
             <div class="hero-stat">
@@ -162,6 +176,113 @@ $stat_years = haupt_get_stat('years');
                 </div>
             <?php endforeach; endif; ?>
         </div>
+    </div>
+</section>
+
+<!-- Career Guides Section -->
+<section class="section" id="career-guides">
+    <div class="container">
+        <div class="section-header" data-aos="fade-up">
+            <span class="section-label"><?php _e('Expert Insights', 'haupt-recruitment'); ?></span>
+            <h2 class="section-title"><?php _e('Career Guides', 'haupt-recruitment'); ?></h2>
+            <p class="section-description"><?php _e('In-depth guides to help you navigate career opportunities across the UK power and energy sector.', 'haupt-recruitment'); ?></p>
+        </div>
+        
+        <?php
+        // Get featured career guides
+        $career_guides = get_posts([
+            'post_type' => 'role_expertise',
+            'posts_per_page' => 4,
+            'orderby' => 'menu_order',
+            'order' => 'ASC',
+        ]);
+        
+        if (!empty($career_guides)) :
+        ?>
+            <div class="grid grid-auto">
+                <?php foreach ($career_guides as $index => $guide) : 
+                    $salary = haupt_get_meta('salary_range', $guide->ID);
+                    $experience = haupt_get_meta('experience_level', $guide->ID);
+                    $guide_cats = get_the_terms($guide->ID, 'role_expertise_category');
+                ?>
+                    <article class="card" data-aos="fade-up" data-aos-delay="<?php echo $index * 100; ?>">
+                        <?php if (has_post_thumbnail($guide->ID)) : ?>
+                            <div class="card-image">
+                                <a href="<?php echo get_permalink($guide->ID); ?>">
+                                    <?php echo get_the_post_thumbnail($guide->ID, 'card', ['alt' => $guide->post_title]); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="card-content">
+                            <?php if (!empty($guide_cats) && !is_wp_error($guide_cats)) : ?>
+                                <div class="card-category">
+                                    <a href="<?php echo get_term_link($guide_cats[0]); ?>">
+                                        <?php echo esc_html($guide_cats[0]->name); ?>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <h3 class="card-title">
+                                <a href="<?php echo get_permalink($guide->ID); ?>"><?php echo esc_html($guide->post_title); ?></a>
+                            </h3>
+                            
+                            <?php if ($salary || $experience) : ?>
+                                <div class="card-meta">
+                                    <?php if ($salary) : ?>
+                                        <span class="card-meta-item"><?php echo esc_html($salary); ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($experience) : ?>
+                                        <span class="card-meta-item"><?php echo esc_html($experience); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <div class="card-text">
+                                <?php echo wp_trim_words($guide->post_excerpt ?: get_the_excerpt($guide), 20); ?>
+                            </div>
+                            
+                            <div class="card-footer">
+                                <a href="<?php echo get_permalink($guide->ID); ?>" class="btn btn-sm btn-outline">
+                                    <?php _e('Read Guide', 'haupt-recruitment'); ?>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="section-cta" data-aos="fade-up">
+                <a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>" class="btn btn-primary btn-lg">
+                    <?php _e('View All Career Guides', 'haupt-recruitment'); ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
+            
+        <?php else : ?>
+            
+            <div class="career-guides-intro" data-aos="fade-up">
+                <div class="career-guides-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                    <h3><?php _e('Comprehensive Career Resources', 'haupt-recruitment'); ?></h3>
+                    <p><?php _e('We\'re building detailed career guides for every role in the power and energy sector. From substation engineers to offshore technicians, our guides cover qualifications, career progression, salary expectations, and industry insights.', 'haupt-recruitment'); ?></p>
+                    <a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>" class="btn btn-primary">
+                        <?php _e('Explore Career Guides', 'haupt-recruitment'); ?>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            
+        <?php endif; ?>
     </div>
 </section>
 
