@@ -1,6 +1,6 @@
 <?php
 /**
- * Single Job Role Template
+ * Single Role Expertise Template
  * Uses the same layout as template-job-role-expert.php
  *
  * @package Haupt_Recruitment_2026
@@ -18,22 +18,22 @@ while (have_posts()) :
     $job_locations = haupt_get_meta('job_locations');
     $last_updated = get_the_modified_date('j F Y');
     
-    // Get category for this job role
-    $terms = get_the_terms(get_the_ID(), 'job_role_category');
+    // Get category for this role (for display/breadcrumbs only)
+    $terms = get_the_terms(get_the_ID(), 'role_expertise_category');
     $category = (!empty($terms) && !is_wp_error($terms)) ? $terms[0] : null;
     
-    // Get related job roles (same category)
+    // Get related roles (same category)
     $related_roles = [];
     if ($category) {
         $related_roles = get_posts([
-            'post_type' => 'job_role',
+            'post_type' => 'role_expertise',
             'post__not_in' => [get_the_ID()],
             'numberposts' => 3,
             'orderby' => 'menu_order',
             'order' => 'ASC',
             'tax_query' => [
                 [
-                    'taxonomy' => 'job_role_category',
+                    'taxonomy' => 'role_expertise_category',
                     'field' => 'slug',
                     'terms' => $category->slug,
                 ],
@@ -169,10 +169,10 @@ while (have_posts()) :
                         </a>
                     </div>
                     
-                    <!-- Related Job Roles -->
+                    <!-- Related Roles -->
                     <?php if (!empty($related_roles)) : ?>
                     <div class="sidebar-widget" data-aos="fade-left" data-aos-delay="100">
-                        <h4><?php _e('Related Job Roles', 'haupt-recruitment'); ?></h4>
+                        <h4><?php _e('Related Role Expertise', 'haupt-recruitment'); ?></h4>
                         <ul class="sidebar-links">
                             <?php foreach ($related_roles as $role) : ?>
                                 <li>
@@ -203,13 +203,13 @@ while (have_posts()) :
     </div>
 </article>
 
-<!-- Related Job Roles Section -->
+<!-- Related Roles Section -->
 <?php if (!empty($related_roles)) : ?>
 <section class="section" id="related-roles">
     <div class="container">
         <div class="section-header" data-aos="fade-up">
             <span class="section-label"><?php _e('Explore More', 'haupt-recruitment'); ?></span>
-            <h2 class="section-title"><?php _e('Related Job Roles', 'haupt-recruitment'); ?></h2>
+            <h2 class="section-title"><?php _e('Related Role Expertise', 'haupt-recruitment'); ?></h2>
         </div>
         
         <div class="grid grid-3">

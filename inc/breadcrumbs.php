@@ -40,42 +40,41 @@ function haupt_get_breadcrumbs() {
                 'title' => __('Jobs', 'haupt-recruitment'),
                 'url' => get_post_type_archive_link('job'),
             ];
-        } elseif ($post_type === 'job_role') {
-            // Job Role Guides: Home > Job Role Guides > Category > Post
+        } elseif ($post_type === 'role_expertise') {
+            // Role Expertise: Home > Role Expertise > Category > Post
             $breadcrumbs[] = [
-                'title' => __('Job Role Guides', 'haupt-recruitment'),
-                'url' => get_post_type_archive_link('job_role'),
+                'title' => __('Role Expertise', 'haupt-recruitment'),
+                'url' => home_url('/role-expertise/'),
             ];
             
-            // Get the category for this job role
-            $terms = get_the_terms(get_the_ID(), 'job_role_category');
+            // Get the category for this role (for display only, not in URL)
+            $terms = get_the_terms(get_the_ID(), 'role_expertise_category');
             if (!empty($terms) && !is_wp_error($terms)) {
-                // Get the first category and its parents
                 $term = $terms[0];
                 $term_parents = [];
                 
                 // Build parent chain
                 $parent = $term;
                 while ($parent && $parent->parent) {
-                    $parent = get_term($parent->parent, 'job_role_category');
+                    $parent = get_term($parent->parent, 'role_expertise_category');
                     if ($parent && !is_wp_error($parent)) {
                         $term_parents[] = $parent;
                     }
                 }
                 
-                // Add parent categories (reversed to get root first)
+                // Add parent categories
                 $term_parents = array_reverse($term_parents);
                 foreach ($term_parents as $parent_term) {
                     $breadcrumbs[] = [
                         'title' => $parent_term->name,
-                        'url' => get_term_link($parent_term),
+                        'url' => home_url('/role-expertise/'), // Link to archive, not term
                     ];
                 }
                 
                 // Add the direct category
                 $breadcrumbs[] = [
                     'title' => $term->name,
-                    'url' => get_term_link($term),
+                    'url' => home_url('/role-expertise/'), // Link to archive, not term
                 ];
             }
         }
@@ -134,17 +133,17 @@ function haupt_get_breadcrumbs() {
                     'title' => __('Jobs', 'haupt-recruitment'),
                     'url' => get_post_type_archive_link('job'),
                 ];
-            } elseif ($term->taxonomy === 'job_role_category') {
+            } elseif ($term->taxonomy === 'role_expertise_category') {
                 $breadcrumbs[] = [
-                    'title' => __('Job Role Guides', 'haupt-recruitment'),
-                    'url' => get_post_type_archive_link('job_role'),
+                    'title' => __('Role Expertise', 'haupt-recruitment'),
+                    'url' => home_url('/role-expertise/'),
                 ];
                 
                 // Build parent category chain
                 $term_parents = [];
                 $parent = $term;
                 while ($parent && $parent->parent) {
-                    $parent = get_term($parent->parent, 'job_role_category');
+                    $parent = get_term($parent->parent, 'role_expertise_category');
                     if ($parent && !is_wp_error($parent)) {
                         $term_parents[] = $parent;
                     }
@@ -155,7 +154,7 @@ function haupt_get_breadcrumbs() {
                 foreach ($term_parents as $parent_term) {
                     $breadcrumbs[] = [
                         'title' => $parent_term->name,
-                        'url' => get_term_link($parent_term),
+                        'url' => home_url('/role-expertise/'),
                     ];
                 }
             }

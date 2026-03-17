@@ -23,11 +23,11 @@ while (have_posts()) :
     $parent_id = wp_get_post_parent_id(get_the_ID());
     $parent = $parent_id ? get_post($parent_id) : null;
     
-    // Get related job role guides (siblings from job_role CPT)
+    // Get related role expertise (siblings from role_expertise CPT)
     $related_roles = [];
     if ($parent_id) {
         $related_roles = get_posts([
-            'post_type' => 'job_role',
+            'post_type' => 'role_expertise',
             'post_parent' => $parent_id,
             'post__not_in' => [get_the_ID()],
             'numberposts' => 3,

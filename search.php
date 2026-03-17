@@ -81,7 +81,7 @@ $total_results = $wp_query->found_posts;
                                 'job' => __('Job', 'haupt-recruitment'),
                                 'post' => __('News', 'haupt-recruitment'),
                                 'page' => __('Page', 'haupt-recruitment'),
-                                'job_role' => __('Career Guide', 'haupt-recruitment'),
+                                'role_expertise' => __('Role Expertise', 'haupt-recruitment'),
                             ];
                             echo esc_html($type_labels[$post_type] ?? __('Content', 'haupt-recruitment'));
                             ?>

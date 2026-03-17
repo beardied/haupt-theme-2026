@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Theme version for cache busting
-define('HAUPT_VERSION', '1.0.7');
+define('HAUPT_VERSION', '1.0.8');
 define('HAUPT_DIR', get_template_directory());
 define('HAUPT_URI', get_template_directory_uri());
 
@@ -373,40 +373,40 @@ if (function_exists('acf_add_options_page')) {
 add_action('init', function() {
     
     // ==========================================
-    // Custom Post Type: Job Role Guides
-    // URL: /job-role/category-name/post-title/
+    // Custom Post Type: Role Expertise
+    // URL: /role-expertise/post-title/ (no category in URL)
     // ==========================================
-    register_post_type('job_role', [
+    register_post_type('role_expertise', [
         'labels' => [
-            'name' => __('Job Role Guides', 'haupt-recruitment'),
-            'singular_name' => __('Job Role Guide', 'haupt-recruitment'),
-            'add_new' => __('Add New Job Role', 'haupt-recruitment'),
-            'add_new_item' => __('Add New Job Role Guide', 'haupt-recruitment'),
-            'edit_item' => __('Edit Job Role Guide', 'haupt-recruitment'),
-            'new_item' => __('New Job Role Guide', 'haupt-recruitment'),
-            'view_item' => __('View Job Role Guide', 'haupt-recruitment'),
-            'search_items' => __('Search Job Role Guides', 'haupt-recruitment'),
-            'not_found' => __('No job role guides found', 'haupt-recruitment'),
-            'not_found_in_trash' => __('No job role guides found in trash', 'haupt-recruitment'),
+            'name' => __('Role Expertise', 'haupt-recruitment'),
+            'singular_name' => __('Role Expertise', 'haupt-recruitment'),
+            'add_new' => __('Add New Role', 'haupt-recruitment'),
+            'add_new_item' => __('Add New Role Expertise', 'haupt-recruitment'),
+            'edit_item' => __('Edit Role Expertise', 'haupt-recruitment'),
+            'new_item' => __('New Role Expertise', 'haupt-recruitment'),
+            'view_item' => __('View Role Expertise', 'haupt-recruitment'),
+            'search_items' => __('Search Role Expertise', 'haupt-recruitment'),
+            'not_found' => __('No role expertise found', 'haupt-recruitment'),
+            'not_found_in_trash' => __('No role expertise found in trash', 'haupt-recruitment'),
         ],
         'public' => true,
         'has_archive' => true,
         'rewrite' => [
-            'slug' => 'job-role/%job_role_category%',
+            'slug' => 'role-expertise',
             'with_front' => false,
         ],
         'supports' => ['title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'page-attributes'],
         'menu_icon' => 'dashicons-welcome-learn-more',
         'show_in_rest' => true,
-        'hierarchical' => false, // Use categories for hierarchy, not pages
-        'taxonomies' => ['job_role_category'], // Declare supported taxonomies
+        'hierarchical' => false,
+        'taxonomies' => ['role_expertise_category'],
     ]);
     
     // ==========================================
-    // Taxonomy: Job Role Categories (10 Sectors)
-    // URL: /job-role-category/substations/
+    // Taxonomy: Role Expertise Categories (10 Sectors)
+    // Used for breadcrumbs and filtering (not in URL)
     // ==========================================
-    register_taxonomy('job_role_category', 'job_role', [
+    register_taxonomy('role_expertise_category', 'role_expertise', [
         'labels' => [
             'name' => __('Categories', 'haupt-recruitment'),
             'singular_name' => __('Category', 'haupt-recruitment'),
@@ -420,14 +420,11 @@ add_action('init', function() {
             'new_item_name' => __('New Category Name', 'haupt-recruitment'),
             'menu_name' => __('Categories', 'haupt-recruitment'),
         ],
-        'hierarchical' => true, // Like categories (not tags)
+        'hierarchical' => true,
         'show_ui' => true,
         'show_admin_column' => true,
         'show_in_rest' => true,
-        'rewrite' => [
-            'slug' => 'job-role-category',
-            'with_front' => false,
-        ],
+        'rewrite' => false, // No public URL for categories
     ]);
     
     // ==========================================
@@ -489,55 +486,7 @@ add_action('init', function() {
     ]);
 });
 
-/**
- * Replace %job_role_category% placeholder in job_role URLs
- * Makes URLs like: /job-role/substations/electrical-engineer/
- */
-add_filter('post_type_link', function($post_link, $post) {
-    if ($post->post_type !== 'job_role') {
-        return $post_link;
-    }
-    
-    // Get the primary category
-    $terms = get_the_terms($post->ID, 'job_role_category');
-    
-    if (!empty($terms) && !is_wp_error($terms)) {
-        // Use first category
-        $category_slug = $terms[0]->slug;
-    } else {
-        // Fallback if no category assigned
-        $category_slug = 'uncategorized';
-    }
-    
-    return str_replace('%job_role_category%', $category_slug, $post_link);
-}, 10, 2);
 
-/**
- * Add rewrite rules for job_role with category in URL
- * Pattern: /job-role/{category}/{postname}/
- */
-add_action('init', function() {
-    // Rule for single job_role posts: /job-role/category/post-name/
-    add_rewrite_rule(
-        '^job-role/([^/]+)/([^/]+)/?$',
-        'index.php?job_role=$matches[2]',
-        'top'
-    );
-    
-    // Rule for category archives: /job-role-category/category-name/
-    add_rewrite_rule(
-        '^job-role-category/([^/]+)/?$',
-        'index.php?job_role_category=$matches[1]',
-        'top'
-    );
-    
-    // Pagination for category archives
-    add_rewrite_rule(
-        '^job-role-category/([^/]+)/page/([0-9]+)/?$',
-        'index.php?job_role_category=$matches[1]&paged=$matches[2]',
-        'top'
-    );
-}, 20);
 
 /**
  * Flush rewrite rules on theme activation
