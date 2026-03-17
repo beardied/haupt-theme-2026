@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Theme version for cache busting
-define('HAUPT_VERSION', '1.0.5');
+define('HAUPT_VERSION', '1.0.6');
 define('HAUPT_DIR', get_template_directory());
 define('HAUPT_URI', get_template_directory_uri());
 
@@ -502,7 +502,7 @@ add_filter('post_type_link', function($post_link, $post) {
     $terms = get_the_terms($post->ID, 'job_role_category');
     
     if (!empty($terms) && !is_wp_error($terms)) {
-        // Use first category (you can change this logic for primary category)
+        // Use first category
         $category_slug = $terms[0]->slug;
     } else {
         // Fallback if no category assigned
@@ -511,6 +511,33 @@ add_filter('post_type_link', function($post_link, $post) {
     
     return str_replace('%job_role_category%', $category_slug, $post_link);
 }, 10, 2);
+
+/**
+ * Add rewrite rules for job_role with category in URL
+ * Pattern: /job-role/{category}/{postname}/
+ */
+add_action('init', function() {
+    // Rule for single job_role posts: /job-role/category/post-name/
+    add_rewrite_rule(
+        '^job-role/([^/]+)/([^/]+)/?$',
+        'index.php?job_role=$matches[2]',
+        'top'
+    );
+    
+    // Rule for category archives: /job-role-category/category-name/
+    add_rewrite_rule(
+        '^job-role-category/([^/]+)/?$',
+        'index.php?job_role_category=$matches[1]',
+        'top'
+    );
+    
+    // Pagination for category archives
+    add_rewrite_rule(
+        '^job-role-category/([^/]+)/page/([0-9]+)/?$',
+        'index.php?job_role_category=$matches[1]&paged=$matches[2]',
+        'top'
+    );
+}, 20);
 
 /**
  * Flush rewrite rules on theme activation
