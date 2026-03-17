@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Converts H2 "FAQ" + H3 questions + P answers into styled accordion
     // ==========================================
     function initGutenbergFAQ() {
-        const contentAreas = document.querySelectorAll('.expert-article .entry-content, .expert-article .content');
+        const contentAreas = document.querySelectorAll('.expert-article .entry-content, .expert-article .content, .article-single .content, .article-single .entry-content, .entry-content, .content');
         
         contentAreas.forEach(function(content) {
             const headings = Array.from(content.querySelectorAll('h2'));

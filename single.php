@@ -47,7 +47,7 @@ while (have_posts()) :
                 <div class="article-layout">
                     <!-- Main Content -->
                     <div class="article-main">
-                        <div class="content">
+                        <div class="content entry-content">
                             <?php the_content(); ?>
                         </div>
                         
@@ -125,6 +125,9 @@ while (have_posts()) :
                             comments_template();
                         }
                         ?>
+                        
+                        <!-- FAQ Schema -->
+                        <?php echo haupt_get_faq_schema(); ?>
                     </div>
                     
                     <!-- Sidebar -->
