@@ -1,0 +1,107 @@
+<?php
+/**
+ * Theme Customizer
+ *
+ * @package Haupt_Recruitment_2026
+ */
+
+add_action('customize_register', function($wp_customize) {
+    
+    // Company Info Section
+    $wp_customize->add_section('haupt_company', [
+        'title' => __('Company Information', 'haupt-recruitment'),
+        'priority' => 30,
+    ]);
+    
+    // Phone
+    $wp_customize->add_setting('haupt_phone', [
+        'default' => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ]);
+    $wp_customize->add_control('haupt_phone', [
+        'label' => __('Phone Number', 'haupt-recruitment'),
+        'section' => 'haupt_company',
+        'type' => 'text',
+    ]);
+    
+    // Email
+    $wp_customize->add_setting('haupt_email', [
+        'default' => '',
+        'sanitize_callback' => 'sanitize_email',
+    ]);
+    $wp_customize->add_control('haupt_email', [
+        'label' => __('Email Address', 'haupt-recruitment'),
+        'section' => 'haupt_company',
+        'type' => 'email',
+    ]);
+    
+    // Address
+    $wp_customize->add_setting('haupt_address', [
+        'default' => '',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ]);
+    $wp_customize->add_control('haupt_address', [
+        'label' => __('Address', 'haupt-recruitment'),
+        'section' => 'haupt_company',
+        'type' => 'textarea',
+    ]);
+    
+    // Colors Section
+    $wp_customize->add_section('haupt_colors', [
+        'title' => __('Theme Colors', 'haupt-recruitment'),
+        'priority' => 35,
+    ]);
+    
+    // Primary Color
+    $wp_customize->add_setting('haupt_primary_color', [
+        'default' => '#0a1628',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ]);
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'haupt_primary_color', [
+        'label' => __('Primary Color', 'haupt-recruitment'),
+        'section' => 'haupt_colors',
+    ]));
+    
+    // Accent Color
+    $wp_customize->add_setting('haupt_accent_color', [
+        'default' => '#f59e0b',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ]);
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'haupt_accent_color', [
+        'label' => __('Accent Color', 'haupt-recruitment'),
+        'section' => 'haupt_colors',
+    ]));
+    
+    // Footer Section
+    $wp_customize->add_section('haupt_footer', [
+        'title' => __('Footer Settings', 'haupt-recruitment'),
+        'priority' => 40,
+    ]);
+    
+    // Footer Text
+    $wp_customize->add_setting('haupt_footer_text', [
+        'default' => '',
+        'sanitize_callback' => 'wp_kses_post',
+    ]);
+    $wp_customize->add_control('haupt_footer_text', [
+        'label' => __('Footer Copyright Text', 'haupt-recruitment'),
+        'section' => 'haupt_footer',
+        'type' => 'textarea',
+    ]);
+});
+
+/**
+ * Output customizer CSS
+ */
+add_action('wp_head', function() {
+    $primary = get_theme_mod('haupt_primary_color', '#0a1628');
+    $accent = get_theme_mod('haupt_accent_color', '#f59e0b');
+    ?>
+    <style type="text/css">
+        :root {
+            --color-primary: <?php echo esc_attr($primary); ?>;
+            --color-accent: <?php echo esc_attr($accent); ?>;
+        }
+    </style>
+    <?php
+}, 100);

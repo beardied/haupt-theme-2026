@@ -1,0 +1,28 @@
+# WordPress
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (if ever added)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build files
+*.map
+.sass-cache/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
