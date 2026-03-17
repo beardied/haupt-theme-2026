@@ -104,7 +104,7 @@
                         <ul class="footer-menu">
                             <li><a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>">Search Jobs</a></li>
                             <li><a href="<?php echo esc_url(home_url('/upload-cv/')); ?>">Upload CV</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/career-resources/')); ?>">Career Resources</a></li>
+                            <li><a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>">Career Guides</a></li>
                         </ul>
                     </div>
                     
