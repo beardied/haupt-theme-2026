@@ -186,6 +186,12 @@ if ($job_id) {
                         <textarea id="contact-message" name="message" class="form-textarea" rows="6" required placeholder="<?php _e('Tell us how we can help you...', 'haupt-recruitment'); ?>"><?php if ($is_job_enquiry) { echo esc_textarea(sprintf(__('I am interested in the %s position. Please could you provide more information about this role.', 'haupt-recruitment'), $job_title)); } ?></textarea>
                     </div>
                     
+                    <!-- Honeypot field for spam protection -->
+                    <div class="form-group" style="position: absolute; left: -9999px; opacity: 0;">
+                        <label for="contact-website">Website</label>
+                        <input type="text" id="contact-website" name="website" tabindex="-1" autocomplete="off">
+                    </div>
+                    
                     <div class="form-group">
                         <label class="form-checkbox">
                             <input type="checkbox" name="privacy" required>

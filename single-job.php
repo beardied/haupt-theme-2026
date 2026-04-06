@@ -26,6 +26,7 @@ while (have_posts()) :
                 <?php if ($sector) : ?>
                     <span class="article-category"><?php echo esc_html($sector); ?></span>
                 <?php endif; ?>
+                <span class="article-date"><?php echo get_the_date(); ?></span>
                 <?php if ($job_type) : ?>
                     <span class="article-date"><?php echo esc_html($job_type); ?></span>
                 <?php endif; ?>
