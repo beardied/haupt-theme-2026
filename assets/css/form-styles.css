@@ -1,0 +1,238 @@
+/**
+ * Haupt Recruitment Form Styles
+ * Minimal styles - most form styling is in page-templates.css
+ */
+
+/* Multi-step form specific styles only */
+.haupt-form-progress {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding: 20px 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.haupt-form-progress .step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    padding: 10px;
+}
+
+.haupt-form-progress .step::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: -50%;
+    width: 100%;
+    height: 3px;
+    background: #e5e5e5;
+    z-index: 1;
+}
+
+.haupt-form-progress .step:last-child::after {
+    display: none;
+}
+
+.haupt-form-progress .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e5e5e5;
+    color: #666;
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+}
+
+.haupt-form-progress .step.active .step-number,
+.haupt-form-progress .step.completed .step-number {
+    background: #00a5b5;
+    color: #fff;
+}
+
+.haupt-form-progress .step.active::after,
+.haupt-form-progress .step.completed::after {
+    background: #00a5b5;
+}
+
+.haupt-form-progress .step-label {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.haupt-form-progress .step.active .step-label {
+    color: #002d72;
+    font-weight: 600;
+}
+
+/* Form Steps */
+.haupt-form-step {
+    display: none;
+}
+
+.haupt-form-step.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Signature Pad */
+.signature-pad-container {
+    margin: 20px 0;
+}
+
+.signature-pad {
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    background: #fff;
+    cursor: crosshair;
+}
+
+.signature-pad canvas {
+    display: block;
+    width: 100% !important;
+    height: 200px !important;
+}
+
+.signature-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.signature-actions .btn-clear {
+    padding: 8px 16px;
+    background: #e5e5e5;
+    border: none;
+    border-radius: 6px;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.signature-actions .btn-clear:hover {
+    background: #d0d0d0;
+}
+
+/* File Upload */
+.file-upload-wrapper {
+    position: relative;
+}
+
+.file-upload-wrapper input[type="file"] {
+    position: absolute;
+    left: -9999px;
+}
+
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fafafa;
+}
+
+.file-upload-label:hover {
+    border-color: #00a5b5;
+    background: #e8f4f5;
+}
+
+.file-upload-label .icon {
+    font-size: 2rem;
+    color: #00a5b5;
+}
+
+.file-upload-label .text {
+    flex: 1;
+}
+
+.file-upload-label .text strong {
+    display: block;
+    color: #002d72;
+}
+
+.file-upload-label .text small {
+    color: #666;
+}
+
+/* Checkbox and Radio Styles */
+.checkbox-group,
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.checkbox-label,
+.radio-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.checkbox-label:hover,
+.radio-label:hover {
+    background: #e8f4f5;
+}
+
+.checkbox-label input,
+.radio-label input {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    accent-color: #00a5b5;
+}
+
+.checkbox-label .label-text,
+.radio-label .label-text {
+    flex: 1;
+}
+
+.checkbox-label .label-text strong,
+.radio-label .label-text strong {
+    color: #002d72;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.checkbox-label .label-text small,
+.radio-label .label-text small {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .haupt-form-progress {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .haupt-form-progress .step {
+        flex: 0 0 calc(33.333% - 10px);
+    }
+    
+    .haupt-form-progress .step::after {
+        display: none;
+    }
+}

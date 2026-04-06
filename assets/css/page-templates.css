@@ -777,10 +777,62 @@
 
 .sidebar-widget-highlight h4 {
   color: var(--white);
+  margin-bottom: var(--space-4);
 }
 
 .sidebar-widget-highlight p {
-  color: var(--gray-300);
+  color: var(--gray-200);
+  line-height: 1.6;
+}
+
+.sidebar-widget-highlight ul,
+.sidebar-widget-highlight ol {
+  color: var(--gray-200);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.sidebar-widget-highlight li {
+  color: var(--gray-200);
+  margin-bottom: var(--space-2);
+  line-height: 1.5;
+}
+
+.sidebar-widget-highlight strong {
+  color: var(--white);
+  font-weight: 600;
+}
+
+.sidebar-widget-highlight a {
+  color: var(--accent-400);
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+.sidebar-widget-highlight a:hover {
+  color: var(--accent-300);
+}
+
+/* Benefits list specific styling */
+.sidebar-widget-highlight .benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-widget-highlight .benefits-list li {
+  color: var(--gray-200);
+  padding-left: var(--space-6);
+  position: relative;
+  margin-bottom: var(--space-3);
+}
+
+.sidebar-widget-highlight .benefits-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--accent-400);
+  font-weight: 700;
 }
 
 /* Subcategories Section */
@@ -833,6 +885,245 @@
 .subcategory-count {
   font-size: var(--text-sm);
   color: var(--text-secondary);
+}
+
+/* ============================================
+   REGISTRATION FORMS
+   ============================================ */
+
+.registration-form-container {
+  background: var(--white);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray-100);
+}
+
+.form-section {
+  margin-bottom: var(--space-8);
+  padding-bottom: var(--space-8);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+}
+
+.form-section h3 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-6);
+}
+
+.form-section h4 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: var(--space-6) 0 var(--space-4);
+}
+
+.form-row {
+  margin-bottom: var(--space-4);
+}
+
+.form-row.two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .form-row.two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="number"],
+.form-group input[type="file"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  transition: border-color var(--transition-fast);
+  background: var(--white);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-500);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.dob-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-500);
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--accent-500);
+}
+
+.form-help {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-2);
+}
+
+.legal-section {
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
+.legal-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.legal-text h4 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: var(--space-4);
+}
+
+.legal-text p {
+  margin-bottom: var(--space-3);
+}
+
+.legal-notice-box {
+  background: linear-gradient(135deg, var(--primary-700) 0%, var(--primary-900) 100%);
+  color: var(--white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.legal-notice-box h3 {
+  color: var(--white);
+  margin-bottom: var(--space-4);
+}
+
+.legal-notice-box p {
+  color: var(--gray-300);
+  margin-bottom: var(--space-3);
+}
+
+.form-actions {
+  margin-top: var(--space-8);
+  text-align: center;
+}
+
+.success-message {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--white);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.success-message svg {
+  color: var(--accent-500);
+  margin-bottom: var(--space-6);
+}
+
+.success-message h2 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.success-message p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.benefits-list li {
+  padding: var(--space-2) 0;
+  padding-left: var(--space-6);
+  position: relative;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.benefits-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--accent-500);
+  border-radius: var(--radius-full);
 }
   opacity: 0;
   transition: opacity var(--transition-fast);

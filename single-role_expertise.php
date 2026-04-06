@@ -141,7 +141,7 @@ while (have_posts()) :
                             <a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>" class="btn btn-primary">
                                 <?php _e('View Current Jobs', 'haupt-recruitment'); ?>
                             </a>
-                            <a href="<?php echo esc_url(home_url('/upload-cv/')); ?>" class="btn btn-outline">
+                            <a href="<?php echo esc_url(home_url('/register-with-us/')); ?>" class="btn btn-outline">
                                 <?php _e('Register Your CV', 'haupt-recruitment'); ?>
                             </a>
                         </div>

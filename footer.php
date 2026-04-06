@@ -103,8 +103,9 @@
                         <h4 class="footer-title">For Candidates</h4>
                         <ul class="footer-menu">
                             <li><a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>">Search Jobs</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/upload-cv/')); ?>">Upload CV</a></li>
+                            <li><a href="<?php echo esc_url(home_url('/register-with-us/')); ?>">Register with Us</a></li>
                             <li><a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>">Career Guides</a></li>
+                            <li><a href="<?php echo esc_url(home_url('/48-hour-opt-out/')); ?>">48-Hour Opt-Out</a></li>
                         </ul>
                     </div>
                     
@@ -113,8 +114,8 @@
                         <h4 class="footer-title">For Employers</h4>
                         <ul class="footer-menu">
                             <li><a href="<?php echo esc_url(home_url('/employers/')); ?>">Our Services</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/submit-vacancy/')); ?>">Submit Vacancy</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/sectors/')); ?>">Sectors We Cover</a></li>
+                            <li><a href="<?php echo esc_url(home_url('/employer-contact/')); ?>">Contact Us</a></li>
+                            <li><a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>">Sectors We Cover</a></li>
                         </ul>
                     </div>
                     
@@ -143,6 +144,7 @@
                         <a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>">Privacy Policy</a>
                         <a href="<?php echo esc_url(home_url('/terms-conditions/')); ?>">Terms & Conditions</a>
                         <a href="<?php echo esc_url(home_url('/cookie-policy/')); ?>">Cookie Policy</a>
+                        <a href="<?php echo esc_url(home_url('/48-hour-opt-out/')); ?>">48-Hour Opt-Out</a>
                     </div>
                 </div>
             </div>

@@ -66,6 +66,7 @@
                 <ul class="header-nav-links">
                     <li><a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>"><?php _e('Career Guides', 'haupt-recruitment'); ?></a></li>
                     <li><a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>"><?php _e('Jobs', 'haupt-recruitment'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/register-with-us/')); ?>"><?php _e('Register', 'haupt-recruitment'); ?></a></li>
                 </ul>
                 
                 <!-- CTA Buttons -->

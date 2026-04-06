@@ -221,7 +221,7 @@ $jobs_query = new WP_Query([
                     <h3><?php _e('No jobs found', 'haupt-recruitment'); ?></h3>
                     <p><?php _e('We currently don\'t have any positions matching your criteria. Please try different filters or register your CV for future opportunities.', 'haupt-recruitment'); ?></p>
                     <div class="no-results-buttons">
-                        <a href="<?php echo esc_url(get_permalink(get_page_by_path('upload-cv'))); ?>" class="btn btn-primary">
+                        <a href="<?php echo esc_url(home_url('/register-with-us/')); ?>" class="btn btn-primary">
                             <?php _e('Register Your CV', 'haupt-recruitment'); ?>
                         </a>
                         <a href="<?php echo esc_url(get_permalink(get_page_by_path('contact'))); ?>" class="btn btn-outline">

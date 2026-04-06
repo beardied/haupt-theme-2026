@@ -351,7 +351,7 @@ $stat_years = haupt_get_stat('years');
             </div>
             
             <div class="why-us-image" data-aos="fade-left">
-                <img src="<?php echo HAUPT_URI; ?>/assets/images/why-choose-us.jpg" alt="Engineers working on power infrastructure">
+                <img src="<?php echo HAUPT_URI; ?>/assets/images/hv-substation-workers.png" alt="High voltage electrical engineers working on substation equipment wearing personal protective equipment">
             </div>
         </div>
     </div>
@@ -474,7 +474,7 @@ $stat_years = haupt_get_stat('years');
             ?>
                 <div class="no-jobs" data-aos="fade-up">
                     <p><?php _e('No current vacancies. Please check back soon or register your CV for future opportunities.', 'haupt-recruitment'); ?></p>
-                    <a href="<?php echo esc_url(get_permalink(get_page_by_path('upload-cv'))); ?>" class="btn btn-primary">
+                    <a href="<?php echo esc_url(home_url('/register-with-us/')); ?>" class="btn btn-primary">
                         <?php _e('Register Your CV', 'haupt-recruitment'); ?>
                     </a>
                 </div>

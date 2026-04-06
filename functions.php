@@ -206,6 +206,35 @@ add_action('wp_enqueue_scripts', function() {
     if (is_singular() && comments_open() && get_option('thread_comments')) {
         wp_enqueue_script('comment-reply');
     }
+    
+    // Form styles and scripts for registration/contact pages
+    if (is_page_template('template-registration.php') || 
+        is_page_template('template-employer-contact.php') || 
+        is_page_template('template-48hour-optout.php')) {
+        
+        wp_enqueue_style(
+            'haupt-forms',
+            HAUPT_URI . '/assets/css/form-styles.css',
+            ['haupt-style'],
+            HAUPT_VERSION
+        );
+        
+        wp_enqueue_script(
+            'signature-pad',
+            'https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js',
+            [],
+            '4.1.7',
+            true
+        );
+        
+        wp_enqueue_script(
+            'haupt-forms',
+            HAUPT_URI . '/assets/js/forms.js',
+            ['signature-pad'],
+            HAUPT_VERSION,
+            true
+        );
+    }
 });
 
 /**
@@ -240,6 +269,7 @@ require_once HAUPT_DIR . '/inc/schema.php';
 require_once HAUPT_DIR . '/inc/breadcrumbs.php';
 require_once HAUPT_DIR . '/inc/template-functions.php';
 require_once HAUPT_DIR . '/inc/customizer.php';
+require_once HAUPT_DIR . '/inc/class-haupt-forms.php';
 
 /**
  * Register Sidebars and Widget Areas
