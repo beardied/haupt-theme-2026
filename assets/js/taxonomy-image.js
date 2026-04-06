@@ -36,11 +36,11 @@
                 var attachment = mediaUploader.state().get('selection').first().toJSON();
                 
                 // Set the hidden input value
-                $('#haupt_category_image_id').val(attachment.id);
+                $('#haupt_sector_image_id').val(attachment.id);
                 
                 // Show preview
                 var previewHtml = '<img src="' + attachment.url + '" style="max-width: 300px; height: auto; border-radius: 4px;">';
-                $('#haupt_category_image_preview').html(previewHtml);
+                $('#haupt_sector_image_preview').html(previewHtml);
                 
                 // Show remove button, change upload button text
                 $('#haupt_remove_image_button').show();
@@ -56,10 +56,10 @@
             e.preventDefault();
             
             // Clear the hidden input
-            $('#haupt_category_image_id').val('');
+            $('#haupt_sector_image_id').val('');
             
             // Clear preview
-            $('#haupt_category_image_preview').html('');
+            $('#haupt_sector_image_preview').html('');
             
             // Hide remove button, reset upload button text
             $('#haupt_remove_image_button').hide();
