@@ -130,6 +130,7 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 body {
@@ -138,6 +139,7 @@ body {
   line-height: 1.6;
   color: var(--text-primary);
   background-color: var(--bg-primary);
+  overflow-x: hidden;
 }
 
 img, picture, video, canvas, svg {
@@ -290,9 +292,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Navigation */
 .primary-navigation {
-  display: flex;
+  display: none;
   align-items: center;
   gap: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+  .primary-navigation {
+    display: flex;
+  }
 }
 
 .nav-menu {
@@ -531,6 +539,7 @@ h1, h2, h3, h4, h5, h6 {
   max-width: var(--container-max);
   margin: 0 auto;
   padding: var(--space-12) var(--space-6);
+  box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
