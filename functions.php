@@ -17,6 +17,24 @@ define('HAUPT_DIR', get_template_directory());
 define('HAUPT_URI', get_template_directory_uri());
 
 /**
+ * Get file version for cache busting
+ * Uses file modification time in dev mode, theme version in production
+ * 
+ * @param string $file_path Path to file relative to theme directory
+ * @return string Version string
+ */
+function haupt_get_file_version($file_path = '') {
+    // If in debug mode or no file specified, use filemtime for auto cache busting
+    if ((defined('WP_DEBUG') && WP_DEBUG) || empty($file_path)) {
+        $full_path = HAUPT_DIR . '/' . ltrim($file_path, '/');
+        if (file_exists($full_path)) {
+            return HAUPT_VERSION . '.' . filemtime($full_path);
+        }
+    }
+    return HAUPT_VERSION;
+}
+
+/**
  * Theme Setup
  */
 add_action('after_setup_theme', function() {
@@ -159,36 +177,36 @@ add_action('wp_enqueue_scripts', function() {
         true
     );
     
-    // Main stylesheet
+    // Main stylesheet - with file-based cache busting
     wp_enqueue_style(
         'haupt-style',
         HAUPT_URI . '/assets/css/main.css',
         [],
-        HAUPT_VERSION
+        haupt_get_file_version('assets/css/main.css')
     );
     
-    // Page templates stylesheet
+    // Page templates stylesheet - with file-based cache busting
     wp_enqueue_style(
         'haupt-templates',
         HAUPT_URI . '/assets/css/page-templates.css',
         ['haupt-style'],
-        HAUPT_VERSION
+        haupt_get_file_version('assets/css/page-templates.css')
     );
     
-    // Gutenberg styles (frontend)
+    // Gutenberg styles (frontend) - with file-based cache busting
     wp_enqueue_style(
         'haupt-gutenberg',
         HAUPT_URI . '/assets/css/gutenberg.css',
         ['haupt-style'],
-        HAUPT_VERSION
+        haupt_get_file_version('assets/css/gutenberg.css')
     );
     
-    // Main JavaScript
+    // Main JavaScript - with file-based cache busting
     wp_enqueue_script(
         'haupt-main',
         HAUPT_URI . '/assets/js/main.js',
         ['aos-js'],
-        HAUPT_VERSION,
+        haupt_get_file_version('assets/js/main.js'),
         true
     );
     
@@ -214,7 +232,7 @@ add_action('wp_enqueue_scripts', function() {
             'haupt-forms',
             HAUPT_URI . '/assets/css/form-styles.css',
             ['haupt-style'],
-            HAUPT_VERSION
+            haupt_get_file_version('assets/css/form-styles.css')
         );
         
         wp_enqueue_script(
@@ -229,7 +247,7 @@ add_action('wp_enqueue_scripts', function() {
             'haupt-forms',
             HAUPT_URI . '/assets/js/forms.js',
             ['signature-pad'],
-            HAUPT_VERSION,
+            haupt_get_file_version('assets/js/forms.js'),
             true
         );
     }
@@ -243,7 +261,7 @@ add_action('admin_enqueue_scripts', function($hook) {
         'haupt-admin',
         HAUPT_URI . '/assets/css/admin.css',
         [],
-        HAUPT_VERSION
+        haupt_get_file_version('assets/css/admin.css')
     );
 });
 
