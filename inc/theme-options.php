@@ -92,6 +92,17 @@ function haupt_get_social($network) {
  * Get stat value
  */
 function haupt_get_stat($stat) {
+    // Default values for stats
+    $defaults = [
+        'placements' => 2500,
+        'clients' => 150,
+        'candidates' => 15000,
+        'years' => 15,
+        'retention' => 98,
+    ];
+    
+    $default_value = isset($defaults[$stat]) ? $defaults[$stat] : 0;
+    
     // First check admin settings (Haupt Settings page)
     $admin_value = get_option('haupt_stat_' . $stat);
     
@@ -101,7 +112,9 @@ function haupt_get_stat($stat) {
     }
     
     // Fallback to customizer/theme options
-    return (int) haupt_get_option('stat_' . $stat, 0);
+    $customizer_value = haupt_get_option('stat_' . $stat, $default_value);
+    
+    return (int) $customizer_value;
 }
 
 /**
