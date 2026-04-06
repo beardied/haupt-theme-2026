@@ -52,7 +52,7 @@ $stat_years = haupt_get_stat('years');
                     <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
             </a>
-            <a href="<?php echo esc_url(get_permalink(get_page_by_path('employers'))); ?>" class="btn btn-ghost btn-lg btn-magnetic">
+            <a href="<?php echo esc_url(home_url('/employer-contact/')); ?>" class="btn btn-ghost btn-lg btn-magnetic">
                 <?php _e('I\'m Hiring', 'haupt-recruitment'); ?>
             </a>
         </div>
@@ -402,7 +402,7 @@ $stat_years = haupt_get_stat('years');
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                 </div>
-                <div class="counter-number" data-target="98" data-suffix="%">0</div>
+                <div class="counter-number" data-target="<?php echo esc_attr(haupt_get_stat('retention')); ?>" data-suffix="%">0</div>
                 <div class="counter-label"><?php _e('Client Retention Rate', 'haupt-recruitment'); ?></div>
             </div>
         </div>

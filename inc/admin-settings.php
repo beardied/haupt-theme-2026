@@ -43,6 +43,13 @@ add_action('admin_init', function() {
     
     // Offices (stored as JSON array)
     register_setting('haupt_settings_group', 'haupt_offices');
+    
+    // Homepage Stats
+    register_setting('haupt_settings_group', 'haupt_stat_placements');
+    register_setting('haupt_settings_group', 'haupt_stat_clients');
+    register_setting('haupt_settings_group', 'haupt_stat_candidates');
+    register_setting('haupt_settings_group', 'haupt_stat_years');
+    register_setting('haupt_settings_group', 'haupt_stat_retention');
 });
 
 /**
@@ -187,6 +194,58 @@ function haupt_render_settings_page() {
                         <input type="url" id="haupt_social_instagram" name="haupt_social_instagram" 
                                value="<?php echo esc_attr(get_option('haupt_social_instagram', '')); ?>" 
                                class="regular-text">
+                    </td>
+                </tr>
+            </table>
+            
+            <!-- Homepage Stats -->
+            <h2 class="title"><?php _e('Homepage Statistics', 'haupt-recruitment'); ?></h2>
+            <p class="description"><?php _e('These statistics appear in the hero section and counter section of the homepage.', 'haupt-recruitment'); ?></p>
+            
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><label for="haupt_stat_placements"><?php _e('Placements Made', 'haupt-recruitment'); ?></label></th>
+                    <td>
+                        <input type="number" id="haupt_stat_placements" name="haupt_stat_placements" 
+                               value="<?php echo esc_attr(get_option('haupt_stat_placements', '2500')); ?>" 
+                               class="small-text">
+                        <p class="description"><?php _e('Shown as: "Placements Made" (hero) and "Successful Placements" (counter)', 'haupt-recruitment'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="haupt_stat_clients"><?php _e('Client Companies', 'haupt-recruitment'); ?></label></th>
+                    <td>
+                        <input type="number" id="haupt_stat_clients" name="haupt_stat_clients" 
+                               value="<?php echo esc_attr(get_option('haupt_stat_clients', '150')); ?>" 
+                               class="small-text">
+                        <p class="description"><?php _e('Shown as: "Client Companies" (hero) and "Client Partners" (counter)', 'haupt-recruitment'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="haupt_stat_candidates"><?php _e('Qualified Candidates', 'haupt-recruitment'); ?></label></th>
+                    <td>
+                        <input type="number" id="haupt_stat_candidates" name="haupt_stat_candidates" 
+                               value="<?php echo esc_attr(get_option('haupt_stat_candidates', '15000')); ?>" 
+                               class="small-text">
+                        <p class="description"><?php _e('Shown as: "Candidates" (hero) and "Qualified Candidates" (counter)', 'haupt-recruitment'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="haupt_stat_years"><?php _e('Years Experience', 'haupt-recruitment'); ?></label></th>
+                    <td>
+                        <input type="number" id="haupt_stat_years" name="haupt_stat_years" 
+                               value="<?php echo esc_attr(get_option('haupt_stat_years', '15')); ?>" 
+                               class="small-text">
+                        <p class="description"><?php _e('Shown as: "Years Experience" in the hero section', 'haupt-recruitment'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="haupt_stat_retention"><?php _e('Client Retention Rate (%)', 'haupt-recruitment'); ?></label></th>
+                    <td>
+                        <input type="number" id="haupt_stat_retention" name="haupt_stat_retention" 
+                               value="<?php echo esc_attr(get_option('haupt_stat_retention', '98')); ?>" 
+                               class="small-text" min="0" max="100">
+                        <p class="description"><?php _e('Shown as: "Client Retention Rate" in the counter section (add % symbol)', 'haupt-recruitment'); ?></p>
                     </td>
                 </tr>
             </table>

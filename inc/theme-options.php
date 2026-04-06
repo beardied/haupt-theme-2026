@@ -92,6 +92,15 @@ function haupt_get_social($network) {
  * Get stat value
  */
 function haupt_get_stat($stat) {
+    // First check admin settings (Haupt Settings page)
+    $admin_value = get_option('haupt_stat_' . $stat);
+    
+    // If admin setting exists and is not empty, use it
+    if ($admin_value !== false && $admin_value !== '') {
+        return (int) $admin_value;
+    }
+    
+    // Fallback to customizer/theme options
     return (int) haupt_get_option('stat_' . $stat, 0);
 }
 
