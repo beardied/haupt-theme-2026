@@ -113,7 +113,7 @@ $stat_years = haupt_get_stat('years');
         <div class="sectors-grid">
             <?php
             $sectors = get_terms([
-                'taxonomy' => 'role_expertise_category',
+                'taxonomy' => 'job_sector',
                 'hide_empty' => false,
                 'number' => 10,
             ]);
@@ -121,8 +121,7 @@ $stat_years = haupt_get_stat('years');
             if (!empty($sectors) && !is_wp_error($sectors)) :
                 foreach ($sectors as $index => $sector) :
                     // Get sector image using our new function
-                    $sector_image = haupt_get_category_image($sector->term_id, 'large');
-                    $sector_image_id = haupt_get_category_image_id($sector->term_id);
+                    $sector_image = haupt_get_sector_image($sector->term_id, 'large');
             ?>
                 <div class="sector-card" data-aos="fade-up" data-aos-delay="<?php echo $index * 100; ?>">
                     <a href="<?php echo esc_url(get_term_link($sector)); ?>" class="sector-card-link-wrapper">

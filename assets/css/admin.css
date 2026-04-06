@@ -1,0 +1,17 @@
+/**
+ * Admin Styles
+ * Styles for WordPress admin area
+ */
+
+/* Taxonomy Image Upload */
+#haupt_category_image_preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#haupt_upload_image_button,
+#haupt_remove_image_button {
+    margin-right: 8px;
+}

@@ -1,7 +1,7 @@
 <?php
 /**
- * Taxonomy Images for Role Expertise Categories
- * Adds image upload functionality to the sector categories
+ * Taxonomy Images for Job Sectors
+ * Adds image upload functionality to job_sector taxonomy
  *
  * @package Haupt_Recruitment_2026
  */
@@ -12,15 +12,15 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Add image field to category add form
+ * Add image field to job_sector add form
  */
-add_action('role_expertise_category_add_form_fields', function() {
-    wp_nonce_field('haupt_category_image', 'haupt_category_image_nonce');
+add_action('job_sector_add_form_fields', function() {
+    wp_nonce_field('haupt_sector_image', 'haupt_sector_image_nonce');
     ?>
     <div class="form-field">
         <label><?php _e('Sector Image', 'haupt-recruitment'); ?></label>
-        <input type="hidden" name="haupt_category_image_id" id="haupt_category_image_id" value="">
-        <div id="haupt_category_image_preview" style="margin-bottom: 10px;"></div>
+        <input type="hidden" name="haupt_sector_image_id" id="haupt_sector_image_id" value="">
+        <div id="haupt_sector_image_preview" style="margin-bottom: 10px;"></div>
         <button type="button" class="button" id="haupt_upload_image_button">
             <?php _e('Upload Image', 'haupt-recruitment'); ?>
         </button>
@@ -33,21 +33,21 @@ add_action('role_expertise_category_add_form_fields', function() {
 });
 
 /**
- * Add image field to category edit form
+ * Add image field to job_sector edit form
  */
-add_action('role_expertise_category_edit_form_fields', function($term) {
-    wp_nonce_field('haupt_category_image', 'haupt_category_image_nonce');
+add_action('job_sector_edit_form_fields', function($term) {
+    wp_nonce_field('haupt_sector_image', 'haupt_sector_image_nonce');
     
-    $image_id = get_term_meta($term->term_id, 'haupt_category_image', true);
+    $image_id = get_term_meta($term->term_id, 'haupt_sector_image', true);
     $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'medium') : '';
     ?>
     <tr class="form-field">
         <th scope="row">
-            <label for="haupt_category_image_id"><?php _e('Sector Image', 'haupt-recruitment'); ?></label>
+            <label for="haupt_sector_image_id"><?php _e('Sector Image', 'haupt-recruitment'); ?></label>
         </th>
         <td>
-            <input type="hidden" name="haupt_category_image_id" id="haupt_category_image_id" value="<?php echo esc_attr($image_id); ?>">
-            <div id="haupt_category_image_preview" style="margin-bottom: 10px;">
+            <input type="hidden" name="haupt_sector_image_id" id="haupt_sector_image_id" value="<?php echo esc_attr($image_id); ?>">
+            <div id="haupt_sector_image_preview" style="margin-bottom: 10px;">
                 <?php if ($image_url) : ?>
                     <img src="<?php echo esc_url($image_url); ?>" style="max-width: 300px; height: auto; border-radius: 4px;">
                 <?php endif; ?>
@@ -69,7 +69,7 @@ add_action('role_expertise_category_edit_form_fields', function($term) {
  */
 add_action('admin_enqueue_scripts', function($hook) {
     $screen = get_current_screen();
-    if ($screen && $screen->taxonomy === 'role_expertise_category') {
+    if ($screen && $screen->taxonomy === 'job_sector') {
         wp_enqueue_media();
         wp_enqueue_script(
             'haupt-taxonomy-image',
@@ -82,30 +82,30 @@ add_action('admin_enqueue_scripts', function($hook) {
 });
 
 /**
- * Save category image
+ * Save sector image
  */
-add_action('created_role_expertise_category', 'haupt_save_category_image');
-add_action('edited_role_expertise_category', 'haupt_save_category_image');
+add_action('created_job_sector', 'haupt_save_sector_image');
+add_action('edited_job_sector', 'haupt_save_sector_image');
 
-function haupt_save_category_image($term_id) {
-    if (!isset($_POST['haupt_category_image_nonce']) || !wp_verify_nonce($_POST['haupt_category_image_nonce'], 'haupt_category_image')) {
+function haupt_save_sector_image($term_id) {
+    if (!isset($_POST['haupt_sector_image_nonce']) || !wp_verify_nonce($_POST['haupt_sector_image_nonce'], 'haupt_sector_image')) {
         return;
     }
     
-    if (isset($_POST['haupt_category_image_id'])) {
-        $image_id = intval($_POST['haupt_category_image_id']);
+    if (isset($_POST['haupt_sector_image_id'])) {
+        $image_id = intval($_POST['haupt_sector_image_id']);
         if ($image_id > 0) {
-            update_term_meta($term_id, 'haupt_category_image', $image_id);
+            update_term_meta($term_id, 'haupt_sector_image', $image_id);
         } else {
-            delete_term_meta($term_id, 'haupt_category_image');
+            delete_term_meta($term_id, 'haupt_sector_image');
         }
     }
 }
 
 /**
- * Add image column to category list
+ * Add image column to sector list
  */
-add_filter('manage_edit-role_expertise_category_columns', function($columns) {
+add_filter('manage_edit-job_sector_columns', function($columns) {
     $new_columns = [];
     foreach ($columns as $key => $value) {
         $new_columns[$key] = $value;
@@ -117,11 +117,11 @@ add_filter('manage_edit-role_expertise_category_columns', function($columns) {
 });
 
 /**
- * Display image in category list
+ * Display image in sector list
  */
-add_filter('manage_role_expertise_category_custom_column', function($content, $column, $term_id) {
+add_filter('manage_job_sector_custom_column', function($content, $column, $term_id) {
     if ($column === 'image') {
-        $image_id = get_term_meta($term_id, 'haupt_category_image', true);
+        $image_id = get_term_meta($term_id, 'haupt_sector_image', true);
         if ($image_id) {
             $image_url = wp_get_attachment_image_url($image_id, 'thumbnail');
             if ($image_url) {
@@ -134,10 +134,10 @@ add_filter('manage_role_expertise_category_custom_column', function($content, $c
 }, 10, 3);
 
 /**
- * Helper function to get category image
+ * Helper function to get sector image
  */
-function haupt_get_category_image($term_id, $size = 'medium') {
-    $image_id = get_term_meta($term_id, 'haupt_category_image', true);
+function haupt_get_sector_image($term_id, $size = 'medium') {
+    $image_id = get_term_meta($term_id, 'haupt_sector_image', true);
     if ($image_id) {
         return wp_get_attachment_image_url($image_id, $size);
     }
@@ -145,8 +145,8 @@ function haupt_get_category_image($term_id, $size = 'medium') {
 }
 
 /**
- * Helper function to get category image ID
+ * Helper function to get sector image ID
  */
-function haupt_get_category_image_id($term_id) {
-    return get_term_meta($term_id, 'haupt_category_image', true);
+function haupt_get_sector_image_id($term_id) {
+    return get_term_meta($term_id, 'haupt_sector_image', true);
 }
