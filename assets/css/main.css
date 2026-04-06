@@ -112,7 +112,7 @@
   --z-modal: 300;
   
   /* Header */
-  --header-height: 0px;
+  --header-height: 72px;
 }
 
 /* ============================================
@@ -671,13 +671,13 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: var(--space-8) var(--space-6);
+  padding: var(--space-4) var(--space-6);
   box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
   .hero-content {
-    padding: var(--space-8) var(--space-8);
+    padding: var(--space-4) var(--space-8);
   }
 }
 
