@@ -88,6 +88,58 @@ add_action('admin_enqueue_scripts', function() {
         
         // Debug: Log that we're enqueuing
         error_log('Haupt Debug: Enqueuing taxonomy-image.js for job_sector');
+        
+        // Add inline script as fallback
+        add_action('admin_footer', function() {
+            ?>
+            <script>
+            (function($) {
+                $(document).ready(function() {
+                    console.log('Haupt: Inline script loaded');
+                    
+                    var mediaUploader;
+                    
+                    $('#haupt_upload_image_button').on('click', function(e) {
+                        e.preventDefault();
+                        console.log('Haupt: Button clicked');
+                        
+                        if (mediaUploader) {
+                            mediaUploader.open();
+                            return;
+                        }
+                        
+                        mediaUploader = wp.media({
+                            title: 'Select Sector Image',
+                            button: { text: 'Use this image' },
+                            multiple: false,
+                            library: { type: 'image' }
+                        });
+                        
+                        mediaUploader.on('select', function() {
+                            var attachment = mediaUploader.state().get('selection').first().toJSON();
+                            console.log('Haupt: Image selected', attachment);
+                            
+                            $('#haupt_sector_image_id').val(attachment.id);
+                            $('#haupt_sector_image_preview').html('<img src="' + attachment.url + '" style="max-width: 300px; height: auto; border-radius: 4px;">');
+                            $('#haupt_remove_image_button').show();
+                            $('#haupt_upload_image_button').text('Change Image');
+                        });
+                        
+                        mediaUploader.open();
+                    });
+                    
+                    $('#haupt_remove_image_button').on('click', function(e) {
+                        e.preventDefault();
+                        $('#haupt_sector_image_id').val('');
+                        $('#haupt_sector_image_preview').html('');
+                        $('#haupt_remove_image_button').hide();
+                        $('#haupt_upload_image_button').text('Upload Image');
+                    });
+                });
+            })(jQuery);
+            </script>
+            <?php
+        });
     }
 });
 
