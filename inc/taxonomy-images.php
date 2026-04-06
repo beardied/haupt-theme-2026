@@ -68,16 +68,19 @@ add_action('job_sector_edit_form_fields', function($term) {
  * Enqueue media uploader scripts
  */
 add_action('admin_enqueue_scripts', function($hook) {
-    $screen = get_current_screen();
-    if ($screen && $screen->taxonomy === 'job_sector') {
-        wp_enqueue_media();
-        wp_enqueue_script(
-            'haupt-taxonomy-image',
-            HAUPT_URI . '/assets/js/taxonomy-image.js',
-            ['jquery'],
-            HAUPT_VERSION,
-            true
-        );
+    // Check if we're on the job_sector taxonomy pages
+    if ($hook === 'edit-tags.php' || $hook === 'term.php') {
+        $screen = get_current_screen();
+        if ($screen && $screen->taxonomy === 'job_sector') {
+            wp_enqueue_media();
+            wp_enqueue_script(
+                'haupt-taxonomy-image',
+                HAUPT_URI . '/assets/js/taxonomy-image.js',
+                ['jquery'],
+                HAUPT_VERSION,
+                true
+            );
+        }
     }
 });
 

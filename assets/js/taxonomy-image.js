@@ -7,11 +7,20 @@
     'use strict';
     
     $(document).ready(function() {
+        // Debug: Check if elements exist
+        if ($('#haupt_upload_image_button').length === 0) {
+            console.log('Haupt: Upload button not found');
+            return;
+        }
+        
+        console.log('Haupt: Taxonomy image script loaded');
+        
         var mediaUploader;
         
         // Upload button click
         $('#haupt_upload_image_button').on('click', function(e) {
             e.preventDefault();
+            console.log('Haupt: Upload button clicked');
             
             // If the uploader object has already been created, reopen the dialog
             if (mediaUploader) {
@@ -34,6 +43,7 @@
             // When an image is selected, run a callback
             mediaUploader.on('select', function() {
                 var attachment = mediaUploader.state().get('selection').first().toJSON();
+                console.log('Haupt: Image selected', attachment.id, attachment.url);
                 
                 // Set the hidden input value
                 $('#haupt_sector_image_id').val(attachment.id);
