@@ -119,18 +119,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ==========================================
-    // ANIMATED COUNTERS
+    // ANIMATED COUNTERS (bottom section only - NOT hero stats)
     // ==========================================
-    const counters = document.querySelectorAll('.counter-number[data-target], .hero-stat-number[data-target]');
+    const counters = document.querySelectorAll('.counter-number[data-target]');
     
     function animateCounter(counter) {
         const target = parseInt(counter.getAttribute('data-target'));
         const duration = 2000; // 2 seconds
         const start = 0;
         const startTime = performance.now();
-        
-        // Mark as counted immediately to prevent double animation
-        counter.classList.add('counted');
         
         function updateCounter(currentTime) {
             const elapsed = currentTime - startTime;
@@ -152,53 +149,21 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(updateCounter);
     }
     
-    // Function to check if element is in viewport
-    function isInViewport(element) {
-        const rect = element.getBoundingClientRect();
-        return (
-            rect.top >= 0 &&
-            rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) + 100 &&
-            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-        );
-    }
-    
-    // Animate counters that are already in view (for hero section at top)
-    function animateVisibleCounters() {
-        counters.forEach(function(counter) {
-            if (!counter.classList.contains('counted') && isInViewport(counter)) {
-                animateCounter(counter);
-            }
-        });
-    }
-    
-    // Intersection Observer for counters that scroll into view
+    // Intersection Observer for counters
     if (counters.length > 0 && 'IntersectionObserver' in window) {
         const counterObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
                 if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                    entry.target.classList.add('counted');
                     animateCounter(entry.target);
                 }
             });
-        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        }, { threshold: 0.5 });
         
         counters.forEach(function(counter) {
             counterObserver.observe(counter);
         });
     }
-    
-    // Also trigger immediately for any visible counters on load
-    // Use small delay to ensure DOM is fully rendered
-    setTimeout(animateVisibleCounters, 100);
-    
-    // Fallback: trigger all remaining counters after 2 seconds
-    setTimeout(function() {
-        counters.forEach(function(counter) {
-            if (!counter.classList.contains('counted')) {
-                animateCounter(counter);
-            }
-        });
-    }, 2000);
 
     // ==========================================
     // FAQ ACCORDION

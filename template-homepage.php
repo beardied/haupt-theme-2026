@@ -74,19 +74,19 @@ $stat_years = haupt_get_stat('years');
         <!-- Hero Stats -->
         <div class="hero-stats" data-aos="fade-up" data-aos-delay="400">
             <div class="hero-stat">
-                <div class="hero-stat-number" data-target="<?php echo esc_attr($stat_placements); ?>">0</div>
+                <div class="hero-stat-number"><?php echo number_format($stat_placements); ?></div>
                 <div class="hero-stat-label"><?php _e('Placements Made', 'haupt-recruitment'); ?></div>
             </div>
             <div class="hero-stat">
-                <div class="hero-stat-number" data-target="<?php echo esc_attr($stat_clients); ?>">0</div>
+                <div class="hero-stat-number"><?php echo number_format($stat_clients); ?></div>
                 <div class="hero-stat-label"><?php _e('Client Companies', 'haupt-recruitment'); ?></div>
             </div>
             <div class="hero-stat">
-                <div class="hero-stat-number" data-target="<?php echo esc_attr($stat_candidates); ?>">0</div>
+                <div class="hero-stat-number"><?php echo number_format($stat_candidates); ?></div>
                 <div class="hero-stat-label"><?php _e('Candidates', 'haupt-recruitment'); ?></div>
             </div>
             <div class="hero-stat">
-                <div class="hero-stat-number" data-target="<?php echo esc_attr($stat_years); ?>">0</div>
+                <div class="hero-stat-number"><?php echo number_format($stat_years); ?></div>
                 <div class="hero-stat-label"><?php _e('Years Experience', 'haupt-recruitment'); ?></div>
             </div>
         </div>
