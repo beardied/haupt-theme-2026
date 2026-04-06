@@ -636,8 +636,16 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 50%, var(--primary-700) 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding-top: var(--header-height);
   overflow: hidden;
+}
+
+/* Hero with background image */
+.hero.hero-has-bg {
+  background-color: var(--primary-900);
 }
 
 .hero::before {
@@ -648,6 +656,14 @@ h1, h2, h3, h4, h5, h6 {
     radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 80%, rgba(20, 184, 166, 0.1) 0%, transparent 50%);
   pointer-events: none;
+}
+
+/* Hero overlay for background image */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(10, 22, 40, 0.7) 0%, rgba(10, 22, 40, 0.5) 100%);
+  z-index: 0;
 }
 
 .hero-content {

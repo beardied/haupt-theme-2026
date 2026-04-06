@@ -88,6 +88,41 @@ add_action('customize_register', function($wp_customize) {
         'section' => 'haupt_footer',
         'type' => 'textarea',
     ]);
+    
+    // Homepage Hero Section
+    $wp_customize->add_section('haupt_hero', [
+        'title' => __('Homepage Hero', 'haupt-recruitment'),
+        'priority' => 25,
+    ]);
+    
+    // Hero Background Image
+    $wp_customize->add_setting('haupt_hero_bg_image', [
+        'default' => '',
+        'sanitize_callback' => 'absint',
+    ]);
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'haupt_hero_bg_image', [
+        'label' => __('Hero Background Image', 'haupt-recruitment'),
+        'description' => __('Upload a background image for the homepage hero section. Recommended size: 1920x800px or wider.', 'haupt-recruitment'),
+        'section' => 'haupt_hero',
+        'mime_type' => 'image',
+    ]));
+    
+    // Hero Overlay Opacity
+    $wp_customize->add_setting('haupt_hero_overlay_opacity', [
+        'default' => '60',
+        'sanitize_callback' => 'absint',
+    ]);
+    $wp_customize->add_control('haupt_hero_overlay_opacity', [
+        'label' => __('Overlay Darkness', 'haupt-recruitment'),
+        'description' => __('Higher values make the image darker (better for text readability).', 'haupt-recruitment'),
+        'section' => 'haupt_hero',
+        'type' => 'range',
+        'input_attrs' => [
+            'min' => 0,
+            'max' => 90,
+            'step' => 5,
+        ],
+    ]);
 });
 
 /**
