@@ -1023,7 +1023,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .page-header {
   background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-900) 100%);
-  padding: calc(var(--header-height) + var(--space-16)) 0 var(--space-16);
+  padding: calc(var(--header-height) + var(--space-8)) 0 var(--space-10);
   text-align: center;
   position: relative;
   overflow: hidden;
