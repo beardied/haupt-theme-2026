@@ -338,6 +338,16 @@ add_action('widgets_init', function() {
         'before_title' => '<h4 class="footer-widget-title">',
         'after_title' => '</h4>',
     ]);
+    
+    register_sidebar([
+        'name' => __('Jobs Sidebar', 'haupt-recruitment'),
+        'id' => 'jobs-sidebar',
+        'description' => __('Widgets for the jobs sidebar', 'haupt-recruitment'),
+        'before_widget' => '<div class="widget %2$s">',
+        'after_widget' => '</div>',
+        'before_title' => '<h3 class="widget-title">',
+        'after_title' => '</h3>',
+    ]);
 });
 
 /**
