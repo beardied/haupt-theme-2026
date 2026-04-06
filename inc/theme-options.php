@@ -104,17 +104,21 @@ function haupt_get_stat($stat) {
     $default_value = isset($defaults[$stat]) ? $defaults[$stat] : 0;
     
     // First check admin settings (Haupt Settings page)
-    $admin_value = get_option('haupt_stat_' . $stat);
+    $admin_value = get_option('haupt_stat_' . $stat, false);
     
     // If admin setting exists and is not empty, use it
-    if ($admin_value !== false && $admin_value !== '') {
+    if ($admin_value !== false && $admin_value !== '' && $admin_value !== '0') {
         return (int) $admin_value;
     }
     
-    // Fallback to customizer/theme options
-    $customizer_value = haupt_get_option('stat_' . $stat, $default_value);
+    // Second: Check customizer directly
+    $customizer_value = get_theme_mod('haupt_stat_' . $stat, false);
+    if ($customizer_value !== false && $customizer_value !== '' && $customizer_value !== '0') {
+        return (int) $customizer_value;
+    }
     
-    return (int) $customizer_value;
+    // Return hardcoded default
+    return $default_value;
 }
 
 /**
