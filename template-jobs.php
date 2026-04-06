@@ -100,7 +100,87 @@ $jobs_query = new WP_Query([
 <!-- Job Results -->
 <section class="section" id="job-results-section">
     <div class="container">
-        <div class="job-results-header" data-aos="fade-up">
+        <div class="jobs-layout">
+            <!-- Sidebar -->
+            <aside class="jobs-sidebar">
+                <!-- Search -->
+                <div class="sidebar-widget">
+                    <h4><?php _e('Search Jobs', 'haupt-recruitment'); ?></h4>
+                    <form role="search" method="get" action="<?php echo esc_url(get_post_type_archive_link('job')); ?>">
+                        <input type="hidden" name="post_type" value="job">
+                        <div class="form-group" style="margin-bottom: var(--space-3);">
+                            <input type="search" name="s" class="form-input" placeholder="<?php esc_attr_e('Keywords...', 'haupt-recruitment'); ?>" value="<?php echo isset($_GET['s']) ? esc_attr($_GET['s']) : ''; ?>">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <?php _e('Search', 'haupt-recruitment'); ?>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Job Sectors -->
+                <div class="sidebar-widget">
+                    <h4><?php _e('Job Sectors', 'haupt-recruitment'); ?></h4>
+                    <ul class="sidebar-links">
+                        <?php
+                        $sectors = get_terms(['taxonomy' => 'job_sector', 'hide_empty' => false]);
+                        foreach ($sectors as $sector) :
+                        ?>
+                        <li>
+                            <a href="<?php echo esc_url(get_term_link($sector)); ?>">
+                                <?php echo esc_html($sector->name); ?>
+                                <span class="count">(<?php echo $sector->count; ?>)</span>
+                            </a>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                
+                <!-- Job Categories -->
+                <div class="sidebar-widget">
+                    <h4><?php _e('Job Categories', 'haupt-recruitment'); ?></h4>
+                    <ul class="sidebar-links">
+                        <?php
+                        $categories = get_terms(['taxonomy' => 'job_category', 'hide_empty' => false]);
+                        if (!empty($categories) && !is_wp_error($categories)) :
+                            foreach ($categories as $category) :
+                        ?>
+                        <li>
+                            <a href="<?php echo esc_url(get_term_link($category)); ?>">
+                                <?php echo esc_html($category->name); ?>
+                                <span class="count">(<?php echo $category->count; ?>)</span>
+                            </a>
+                        </li>
+                        <?php 
+                            endforeach;
+                        else :
+                            echo '<li>' . __('No categories found', 'haupt-recruitment') . '</li>';
+                        endif;
+                        ?>
+                    </ul>
+                </div>
+                
+                <!-- Locations -->
+                <div class="sidebar-widget">
+                    <h4><?php _e('Locations', 'haupt-recruitment'); ?></h4>
+                    <ul class="sidebar-links">
+                        <?php
+                        $locations = get_terms(['taxonomy' => 'job_location', 'hide_empty' => false]);
+                        foreach ($locations as $location) :
+                        ?>
+                        <li>
+                            <a href="<?php echo esc_url(get_term_link($location)); ?>">
+                                <?php echo esc_html($location->name); ?>
+                                <span class="count">(<?php echo $location->count; ?>)</span>
+                            </a>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </aside>
+            
+            <!-- Main Content -->
+            <div class="jobs-main">
+                <div class="job-results-header" data-aos="fade-up">
             <h2 class="job-results-count">
                 <?php 
                 $total_jobs = wp_count_posts('job')->publish;
@@ -228,7 +308,8 @@ $jobs_query = new WP_Query([
                     </div>
                 </div>
             <?php endif; wp_reset_postdata(); ?>
-        </div>
+            </div><!-- /.jobs-main -->
+        </div><!-- /.jobs-layout -->
     </div>
 </section>
 
