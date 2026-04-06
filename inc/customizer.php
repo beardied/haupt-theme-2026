@@ -7,45 +7,6 @@
 
 add_action('customize_register', function($wp_customize) {
     
-    // Company Info Section
-    $wp_customize->add_section('haupt_company', [
-        'title' => __('Company Information', 'haupt-recruitment'),
-        'priority' => 30,
-    ]);
-    
-    // Phone
-    $wp_customize->add_setting('haupt_phone', [
-        'default' => '',
-        'sanitize_callback' => 'sanitize_text_field',
-    ]);
-    $wp_customize->add_control('haupt_phone', [
-        'label' => __('Phone Number', 'haupt-recruitment'),
-        'section' => 'haupt_company',
-        'type' => 'text',
-    ]);
-    
-    // Email
-    $wp_customize->add_setting('haupt_email', [
-        'default' => '',
-        'sanitize_callback' => 'sanitize_email',
-    ]);
-    $wp_customize->add_control('haupt_email', [
-        'label' => __('Email Address', 'haupt-recruitment'),
-        'section' => 'haupt_company',
-        'type' => 'email',
-    ]);
-    
-    // Address
-    $wp_customize->add_setting('haupt_address', [
-        'default' => '',
-        'sanitize_callback' => 'sanitize_textarea_field',
-    ]);
-    $wp_customize->add_control('haupt_address', [
-        'label' => __('Address', 'haupt-recruitment'),
-        'section' => 'haupt_company',
-        'type' => 'textarea',
-    ]);
-    
     // Colors Section
     $wp_customize->add_section('haupt_colors', [
         'title' => __('Theme Colors', 'haupt-recruitment'),
