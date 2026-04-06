@@ -921,6 +921,16 @@
   color: var(--accent-300);
 }
 
+/* Button styling in sidebar widget - make text white */
+.sidebar-widget-highlight .btn {
+  color: var(--white);
+  text-decoration: none;
+}
+
+.sidebar-widget-highlight .btn:hover {
+  color: var(--white);
+}
+
 /* Benefits list specific styling */
 .sidebar-widget-highlight .benefits-list {
   list-style: none;
