@@ -16,8 +16,6 @@ while (have_posts()) :
         <div class="article-header-bg">
             <?php if (has_post_thumbnail()) : ?>
                 <?php the_post_thumbnail('hero', ['alt' => get_the_title()]); ?>
-            <?php else : ?>
-                <img src="<?php echo HAUPT_URI; ?>/assets/images/default-hero.jpg" alt="" aria-hidden="true">
             <?php endif; ?>
         </div>
         <div class="article-header-overlay"></div>

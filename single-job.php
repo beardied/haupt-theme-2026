@@ -19,9 +19,7 @@ while (have_posts()) :
     
     <!-- Job Header -->
     <header class="article-header">
-        <div class="article-header-bg">
-            <img src="<?php echo HAUPT_URI; ?>/assets/images/default-hero.jpg" alt="" aria-hidden="true">
-        </div>
+        <div class="article-header-bg"></div>
         <div class="article-header-overlay"></div>
         <div class="article-header-content">
             <div class="article-meta-top">

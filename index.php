@@ -10,9 +10,7 @@ get_header();
 
 <!-- Page Header -->
 <header class="page-header">
-    <div class="page-header-bg">
-        <img src="<?php echo HAUPT_URI; ?>/assets/images/page-header-bg.jpg" alt="" aria-hidden="true">
-    </div>
+    <div class="page-header-bg"></div>
     <div class="page-header-content">
         <span class="page-header-label"><?php _e('Latest Updates', 'haupt-recruitment'); ?></span>
         <h1 class="page-header-title"><?php _e('News & Insights', 'haupt-recruitment'); ?></h1>

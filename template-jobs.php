@@ -26,9 +26,7 @@ $jobs_query = new WP_Query([
 
 <!-- Page Header -->
 <header class="page-header">
-    <div class="page-header-bg">
-        <img src="<?php echo HAUPT_URI; ?>/assets/images/jobs-header.jpg" alt="" aria-hidden="true">
-    </div>
+    <div class="page-header-bg"></div>
     <div class="page-header-content">
         <span class="page-header-label"><?php _e('Career Opportunities', 'haupt-recruitment'); ?></span>
         <h1 class="page-header-title"><?php _e('Current Vacancies', 'haupt-recruitment'); ?></h1>

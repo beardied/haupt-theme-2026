@@ -12,7 +12,6 @@
 function haupt_get_organization_schema() {
     $name = get_bloginfo('name');
     $url = home_url();
-    $logo = HAUPT_URI . '/assets/images/logo.png';
     $phone = haupt_get_phone();
     $email = haupt_get_email();
     $address = haupt_get_address();
@@ -22,7 +21,6 @@ function haupt_get_organization_schema() {
         '@type' => 'Organization',
         'name' => $name,
         'url' => $url,
-        'logo' => $logo,
         'description' => get_bloginfo('description'),
         'sameAs' => [],
     ];
@@ -110,7 +108,7 @@ function haupt_get_article_schema() {
             'name' => get_bloginfo('name'),
             'logo' => [
                 '@type' => 'ImageObject',
-                'url' => HAUPT_URI . '/assets/images/logo.png',
+                'url' => home_url(),
             ],
         ],
     ];

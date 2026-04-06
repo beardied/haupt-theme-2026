@@ -14,9 +14,7 @@ $registered_name = isset($_GET['name']) ? urldecode($_GET['name']) : '';
 ?>
 
 <header class="page-header">
-    <div class="page-header-bg">
-        <img src="<?php echo HAUPT_URI; ?>/assets/images/page-header-bg.jpg" alt="" aria-hidden="true">
-    </div>
+    <div class="page-header-bg"></div>
     <div class="page-header-overlay"></div>
     <div class="page-header-content">
         <span class="page-header-label"><?php _e('Join Us', 'haupt-recruitment'); ?></span>

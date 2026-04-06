@@ -644,7 +644,6 @@ class Haupt_Forms {
     private function get_email_template($content, $title = '') {
         $site_name = get_bloginfo('name');
         $site_url = home_url();
-        $logo_url = HAUPT_URI . '/assets/images/logo.png';
         $primary_color = '#002d72';
         $accent_color = '#00a5b5';
         

@@ -35,9 +35,7 @@ if ($job_id) {
 
 <!-- Page Header -->
 <header class="page-header">
-    <div class="page-header-bg">
-        <img src="<?php echo HAUPT_URI; ?>/assets/images/contact-header.jpg" alt="" aria-hidden="true">
-    </div>
+    <div class="page-header-bg"></div>
     <div class="page-header-content">
         <span class="page-header-label"><?php _e('Get in Touch', 'haupt-recruitment'); ?></span>
         <h1 class="page-header-title"><?php _e('Contact Us', 'haupt-recruitment'); ?></h1>
