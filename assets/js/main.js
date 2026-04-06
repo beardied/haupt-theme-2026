@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==========================================
     // ANIMATED COUNTERS
     // ==========================================
-    const counters = document.querySelectorAll('.counter-number[data-target]');
+    const counters = document.querySelectorAll('.counter-number[data-target], .hero-stat-number[data-target]');
     
     function animateCounter(counter) {
         const target = parseInt(counter.getAttribute('data-target'));
