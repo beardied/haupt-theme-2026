@@ -8,16 +8,32 @@
    ============================================ */
 
 /* Sector Cards */
+/* Sectors Grid */
+.sectors-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .sectors-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .sectors-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .sector-card {
-  background: var(--white);
   border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: var(--shadow-md);
   transition: all var(--transition-base);
-  border: 1px solid var(--gray-100);
   height: 100%;
-  display: flex;
-  flex-direction: column;
+  min-height: 320px;
 }
 
 .sector-card:hover {
@@ -25,10 +41,21 @@
   box-shadow: var(--shadow-xl);
 }
 
+.sector-card-link-wrapper {
+  display: block;
+  position: relative;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
 .sector-card-image {
-  aspect-ratio: 16 / 9;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--primary-800), var(--primary-700));
 }
 
 .sector-card-image img {
@@ -42,61 +69,74 @@
   transform: scale(1.05);
 }
 
-.sector-card-content {
-  padding: var(--space-6);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.sector-card-image-placeholder {
+  background: linear-gradient(135deg, var(--primary-800), var(--primary-700));
 }
 
-.sector-card-icon {
-  width: 48px;
-  height: 48px;
-  margin-bottom: var(--space-4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--accent-500), var(--accent-600));
-  border-radius: var(--radius-lg);
+.sector-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(10, 22, 40, 0.95) 0%, rgba(10, 22, 40, 0.6) 50%, rgba(10, 22, 40, 0.3) 100%);
+  transition: background var(--transition-base);
+}
+
+.sector-card:hover .sector-card-overlay {
+  background: linear-gradient(to top, rgba(10, 22, 40, 0.98) 0%, rgba(10, 22, 40, 0.7) 60%, rgba(10, 22, 40, 0.4) 100%);
+}
+
+.sector-card-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-6);
   color: var(--white);
+  z-index: 2;
 }
 
 .sector-card-title {
   font-size: var(--text-xl);
   font-weight: 700;
-  margin-bottom: var(--space-3);
-  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  color: var(--white);
 }
 
 .sector-card-description {
-  color: var(--text-secondary);
+  color: var(--gray-300);
   font-size: var(--text-sm);
   line-height: 1.6;
-  flex: 1;
   margin-bottom: var(--space-4);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.sector-card-link {
+.sector-card-cta {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   font-weight: 600;
-  color: var(--accent-500);
+  color: var(--accent-400);
   font-size: var(--text-sm);
+  transition: all var(--transition-fast);
 }
 
-.sector-card-link:hover {
-  color: var(--accent-600);
+.sector-card:hover .sector-card-cta {
+  color: var(--accent-300);
   gap: var(--space-3);
 }
 
-.sector-card-link svg {
+.sector-card-cta svg {
   width: 16px;
   height: 16px;
   transition: transform var(--transition-fast);
 }
 
-.sector-card-link:hover svg {
+.sector-card:hover .sector-card-cta svg {
   transform: translateX(4px);
 }
 

@@ -110,42 +110,46 @@ $stat_years = haupt_get_stat('years');
             <p class="section-description"><?php _e('Specialist recruitment expertise across the UK\'s critical energy infrastructure sectors.', 'haupt-recruitment'); ?></p>
         </div>
         
-        <div class="grid grid-auto">
+        <div class="sectors-grid">
             <?php
             $sectors = get_terms([
-                'taxonomy' => 'job_sector',
+                'taxonomy' => 'role_expertise_category',
                 'hide_empty' => false,
-                'number' => 6,
+                'number' => 10,
             ]);
             
             if (!empty($sectors) && !is_wp_error($sectors)) :
                 foreach ($sectors as $index => $sector) :
-                    // Sector icon and image - use term meta if available
-                    $sector_icon = get_term_meta($sector->term_id, 'sector_icon', true);
-                    $sector_image = get_term_meta($sector->term_id, 'sector_image', true);
+                    // Get sector image using our new function
+                    $sector_image = haupt_get_category_image($sector->term_id, 'large');
+                    $sector_image_id = haupt_get_category_image_id($sector->term_id);
             ?>
                 <div class="sector-card" data-aos="fade-up" data-aos-delay="<?php echo $index * 100; ?>">
-                    <div class="sector-card-image">
+                    <a href="<?php echo esc_url(get_term_link($sector)); ?>" class="sector-card-link-wrapper">
                         <?php if ($sector_image) : ?>
-                            <img src="<?php echo esc_url($sector_image['url']); ?>" alt="<?php echo esc_attr($sector->name); ?>">
-                        <?php endif; ?>
-                    </div>
-                    <div class="sector-card-content">
-                        <?php if ($sector_icon) : ?>
-                            <div class="sector-card-icon">
-                                <img src="<?php echo esc_url($sector_icon['url']); ?>" alt="">
+                            <div class="sector-card-image">
+                                <img src="<?php echo esc_url($sector_image); ?>" alt="<?php echo esc_attr($sector->name); ?>">
+                                <div class="sector-card-overlay"></div>
+                            </div>
+                        <?php else : ?>
+                            <div class="sector-card-image sector-card-image-placeholder">
+                                <div class="sector-card-overlay"></div>
                             </div>
                         <?php endif; ?>
-                        <h3 class="sector-card-title"><?php echo esc_html($sector->name); ?></h3>
-                        <p class="sector-card-description"><?php echo esc_html($sector->description); ?></p>
-                        <a href="<?php echo esc_url(get_term_link($sector)); ?>" class="sector-card-link">
-                            <?php _e('Explore Roles', 'haupt-recruitment'); ?>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg>
-                        </a>
-                    </div>
+                        <div class="sector-card-content">
+                            <h3 class="sector-card-title"><?php echo esc_html($sector->name); ?></h3>
+                            <?php if ($sector->description) : ?>
+                                <p class="sector-card-description"><?php echo esc_html($sector->description); ?></p>
+                            <?php endif; ?>
+                            <span class="sector-card-cta">
+                                <?php _e('Explore Roles', 'haupt-recruitment'); ?>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </span>
+                        </div>
+                    </a>
                 </div>
             <?php 
                 endforeach;
