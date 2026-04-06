@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Theme version for cache busting
-define('HAUPT_VERSION', '1.0.25');
+define('HAUPT_VERSION', '1.0.26');
 define('HAUPT_DIR', get_template_directory());
 define('HAUPT_URI', get_template_directory_uri());
 
