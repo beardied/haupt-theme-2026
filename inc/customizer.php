@@ -119,10 +119,21 @@ add_action('customize_register', function($wp_customize) {
         'type' => 'range',
         'input_attrs' => [
             'min' => 0,
-            'max' => 90,
+            'max' => 100,
             'step' => 5,
         ],
     ]);
+    
+    // Hero Overlay Color
+    $wp_customize->add_setting('haupt_hero_overlay_color', [
+        'default' => '#0a1628',
+        'sanitize_callback' => 'sanitize_hex_color',
+    ]);
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'haupt_hero_overlay_color', [
+        'label' => __('Overlay Color', 'haupt-recruitment'),
+        'description' => __('Choose the overlay color. Dark blue is recommended for readability.', 'haupt-recruitment'),
+        'section' => 'haupt_hero',
+    ]));
 });
 
 /**

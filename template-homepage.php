@@ -16,8 +16,9 @@ $hero_description = haupt_get_hero('description');
 $hero_bg_image_id = get_theme_mod('haupt_hero_bg_image');
 $hero_bg_url = $hero_bg_image_id ? wp_get_attachment_image_url($hero_bg_image_id, 'full') : null;
 
-// Get overlay opacity
+// Get overlay settings
 $hero_overlay_opacity = get_theme_mod('haupt_hero_overlay_opacity', 60);
+$hero_overlay_color = get_theme_mod('haupt_hero_overlay_color', '#0a1628');
 
 // Stats
 $stat_placements = haupt_get_stat('placements');
@@ -28,7 +29,7 @@ $stat_years = haupt_get_stat('years');
 
 <!-- Hero Section -->
 <section class="hero <?php echo $hero_bg_url ? 'hero-has-bg' : ''; ?>" id="hero" <?php if ($hero_bg_url) : ?>style="background-image: url('<?php echo esc_url($hero_bg_url); ?>');"<?php endif; ?>>
-    <div class="hero-overlay" style="opacity: <?php echo esc_attr($hero_overlay_opacity / 100); ?>"></div>
+    <div class="hero-overlay" style="background-color: <?php echo esc_attr($hero_overlay_color); ?>; opacity: <?php echo esc_attr($hero_overlay_opacity / 100); ?>"></div>
     
     <div class="hero-content">
         <span class="hero-label" data-aos="fade-right"><?php _e('UK Power & Energy Specialists', 'haupt-recruitment'); ?></span>
