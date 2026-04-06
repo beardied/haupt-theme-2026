@@ -289,6 +289,24 @@ $stat_years = haupt_get_stat('years');
     </div>
 </section>
 
+<!-- CTA Section -->
+<section class="section section-dark cta-section" id="cta">
+    <div class="container">
+        <div class="cta-content" data-aos="zoom-in">
+            <h2 class="cta-title"><?php _e('Ready to Power Your Next Move?', 'haupt-recruitment'); ?></h2>
+            <p class="cta-text"><?php _e('Whether you\'re looking for your dream role or need to build your dream team, we\'re here to make it happen.', 'haupt-recruitment'); ?></p>
+            <div class="cta-buttons">
+                <a href="<?php echo esc_url(get_permalink(get_page_by_path('candidates'))); ?>" class="btn btn-primary btn-lg">
+                    <?php _e('I\'m Looking for Work', 'haupt-recruitment'); ?>
+                </a>
+                <a href="<?php echo esc_url(home_url('/employer-contact/')); ?>" class="btn btn-white btn-lg">
+                    <?php _e('I\'m Looking to Hire', 'haupt-recruitment'); ?>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Why Choose Us -->
 <section class="section" id="why-us">
     <div class="container">
@@ -550,24 +568,6 @@ $stat_years = haupt_get_stat('years');
                     </div>
                 </div>
             <?php endforeach; endif; ?>
-        </div>
-    </div>
-</section>
-
-<!-- CTA Section -->
-<section class="section section-dark cta-section" id="cta">
-    <div class="container">
-        <div class="cta-content" data-aos="zoom-in">
-            <h2 class="cta-title"><?php _e('Ready to Power Your Next Move?', 'haupt-recruitment'); ?></h2>
-            <p class="cta-text"><?php _e('Whether you\'re looking for your dream role or need to build your dream team, we\'re here to make it happen.', 'haupt-recruitment'); ?></p>
-            <div class="cta-buttons">
-                <a href="<?php echo esc_url(get_permalink(get_page_by_path('candidates'))); ?>" class="btn btn-primary btn-lg">
-                    <?php _e('I\'m Looking for Work', 'haupt-recruitment'); ?>
-                </a>
-                <a href="<?php echo esc_url(get_permalink(get_page_by_path('employers'))); ?>" class="btn btn-white btn-lg">
-                    <?php _e('I\'m Looking to Hire', 'haupt-recruitment'); ?>
-                </a>
-            </div>
         </div>
     </div>
 </section>

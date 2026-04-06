@@ -23,7 +23,7 @@ $has_offices = !empty($offices);
                         <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
                 </a>
-                <a href="<?php echo esc_url(home_url('/employers/')); ?>" class="btn btn-ghost btn-lg">
+                <a href="<?php echo esc_url(home_url('/employer-contact/')); ?>" class="btn btn-ghost btn-lg">
                     Hire Talent
                 </a>
             </div>
