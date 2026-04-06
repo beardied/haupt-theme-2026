@@ -67,10 +67,10 @@ while (have_posts()) :
                         <!-- Apply Button -->
                         <div class="job-apply-section" style="margin-top: var(--space-8); padding: var(--space-6); background: var(--gray-50); border-radius: var(--radius-xl); text-align: center;">
                             <h3 style="margin-bottom: var(--space-4);"><?php _e('Interested in this role?', 'haupt-recruitment'); ?></h3>
-                            <p style="margin-bottom: var(--space-4); color: var(--text-secondary);"><?php _e('Apply now or register your CV to be considered for this and similar positions.', 'haupt-recruitment'); ?></p>
+                            <p style="margin-bottom: var(--space-4); color: var(--text-secondary);"><?php _e('Get in touch to enquire about this position or register your CV for similar opportunities.', 'haupt-recruitment'); ?></p>
                             <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap;">
-                                <a href="<?php echo esc_url(home_url('/register-with-us/?job=' . get_the_ID())); ?>" class="btn btn-primary btn-lg">
-                                    <?php _e('Apply for this Role', 'haupt-recruitment'); ?>
+                                <a href="<?php echo esc_url(home_url('/contact/?job=' . get_the_ID())); ?>" class="btn btn-primary btn-lg">
+                                    <?php _e('Enquire about this Role', 'haupt-recruitment'); ?>
                                 </a>
                                 <a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>" class="btn btn-outline btn-lg">
                                     <?php _e('View More Jobs', 'haupt-recruitment'); ?>
@@ -99,26 +99,23 @@ while (have_posts()) :
                     </div>
                     
                     <!-- Jobs Sidebar -->
-                    <aside class="article-sidebar">
+                    <aside class="expert-sidebar">
                         <!-- Search Widget -->
-                        <div class="widget widget_search">
-                            <h3 class="widget-title"><?php _e('Search Jobs', 'haupt-recruitment'); ?></h3>
-                            <form role="search" method="get" class="search-form" action="<?php echo esc_url(get_post_type_archive_link('job')); ?>">
+                        <div class="sidebar-widget">
+                            <h4><?php _e('Search Jobs', 'haupt-recruitment'); ?></h4>
+                            <form role="search" method="get" class="search-form" action="<?php echo esc_url(get_post_type_archive_link('job')); ?>" style="display: flex; gap: var(--space-2);">
                                 <input type="hidden" name="post_type" value="job">
-                                <label>
-                                    <span class="screen-reader-text"><?php _e('Search for:', 'haupt-recruitment'); ?></span>
-                                    <input type="search" class="search-field" placeholder="<?php esc_attr_e('Search jobs...', 'haupt-recruitment'); ?>" value="" name="s">
-                                </label>
-                                <button type="submit" class="search-submit">
+                                <input type="search" class="form-input" placeholder="<?php esc_attr_e('Search jobs...', 'haupt-recruitment'); ?>" value="" name="s" style="flex: 1;">
+                                <button type="submit" class="btn btn-primary" style="padding: var(--space-3);">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                                 </button>
                             </form>
                         </div>
                         
                         <!-- Recent Jobs Widget -->
-                        <div class="widget widget_recent_entries">
-                            <h3 class="widget-title"><?php _e('Recent Jobs', 'haupt-recruitment'); ?></h3>
-                            <ul>
+                        <div class="sidebar-widget">
+                            <h4><?php _e('Recent Jobs', 'haupt-recruitment'); ?></h4>
+                            <ul class="sidebar-links">
                                 <?php
                                 $recent_jobs = get_posts([
                                     'post_type' => 'job',
@@ -130,13 +127,9 @@ while (have_posts()) :
                                 
                                 if (!empty($recent_jobs)) :
                                     foreach ($recent_jobs as $job) :
-                                        $job_location = haupt_get_meta('job_location', $job->ID);
                                 ?>
                                     <li>
                                         <a href="<?php echo get_permalink($job->ID); ?>"><?php echo esc_html($job->post_title); ?></a>
-                                        <?php if ($job_location) : ?>
-                                            <span class="post-date"><?php echo esc_html($job_location); ?></span>
-                                        <?php endif; ?>
                                     </li>
                                 <?php 
                                     endforeach;

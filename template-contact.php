@@ -14,6 +14,19 @@ $email = haupt_get_email();
 $address = haupt_get_address();
 $map_embed = '';
 $opening_hours = ''; // Add to theme options if needed
+
+// Check if coming from a job page
+$job_id = isset($_GET['job']) ? intval($_GET['job']) : 0;
+$job_title = '';
+$is_job_enquiry = false;
+
+if ($job_id) {
+    $job_post = get_post($job_id);
+    if ($job_post && $job_post->post_type === 'job') {
+        $job_title = $job_post->post_title;
+        $is_job_enquiry = true;
+    }
+}
 ?>
 
 <!-- Page Header -->
@@ -121,9 +134,21 @@ $opening_hours = ''; // Add to theme options if needed
             
             <!-- Contact Form -->
             <div class="contact-form-wrapper" data-aos="fade-left">
+                <?php if ($is_job_enquiry) : ?>
+                <div class="job-enquiry-notice" style="background: linear-gradient(135deg, var(--accent-500), var(--accent-600)); color: var(--white); padding: var(--space-4); border-radius: var(--radius-lg); margin-bottom: var(--space-6);">
+                    <h4 style="color: var(--white); margin-bottom: var(--space-2);"><?php _e('Job Enquiry', 'haupt-recruitment'); ?></h4>
+                    <p style="color: var(--white); margin: 0;"><?php printf(__('You are enquiring about: %s', 'haupt-recruitment'), '<strong>' . esc_html($job_title) . '</strong>'); ?></p>
+                </div>
+                <?php endif; ?>
+                
                 <form class="contact-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post" data-validate>
                     <input type="hidden" name="action" value="haupt_contact_form">
                     <?php wp_nonce_field('contact_form_nonce', 'contact_nonce'); ?>
+                    
+                    <?php if ($is_job_enquiry) : ?>
+                    <input type="hidden" name="job_id" value="<?php echo esc_attr($job_id); ?>">
+                    <input type="hidden" name="job_title" value="<?php echo esc_attr($job_title); ?>">
+                    <?php endif; ?>
                     
                     <div class="form-row">
                         <div class="form-group">
@@ -147,7 +172,7 @@ $opening_hours = ''; // Add to theme options if needed
                             <label for="contact-enquiry" class="form-label form-label-required"><?php _e('Enquiry Type', 'haupt-recruitment'); ?></label>
                             <select id="contact-enquiry" name="enquiry_type" class="form-select" required>
                                 <option value=""><?php _e('Select an option', 'haupt-recruitment'); ?></option>
-                                <option value="candidate"><?php _e('I\'m looking for work', 'haupt-recruitment'); ?></option>
+                                <option value="candidate" <?php selected($is_job_enquiry); ?>><?php _e('I\'m looking for work', 'haupt-recruitment'); ?></option>
                                 <option value="employer"><?php _e('I\'m looking to hire', 'haupt-recruitment'); ?></option>
                                 <option value="general"><?php _e('General enquiry', 'haupt-recruitment'); ?></option>
                             </select>
@@ -156,7 +181,7 @@ $opening_hours = ''; // Add to theme options if needed
                     
                     <div class="form-group">
                         <label for="contact-message" class="form-label form-label-required"><?php _e('Your Message', 'haupt-recruitment'); ?></label>
-                        <textarea id="contact-message" name="message" class="form-textarea" rows="6" required placeholder="<?php _e('Tell us how we can help you...', 'haupt-recruitment'); ?>"></textarea>
+                        <textarea id="contact-message" name="message" class="form-textarea" rows="6" required placeholder="<?php _e('Tell us how we can help you...', 'haupt-recruitment'); ?>"><?php if ($is_job_enquiry) { echo esc_textarea(sprintf(__('I am interested in the %s position. Please could you provide more information about this role.', 'haupt-recruitment'), $job_title)); } ?></textarea>
                     </div>
                     
                     <div class="form-group">
