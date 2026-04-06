@@ -351,6 +351,14 @@ add_action('widgets_init', function() {
 });
 
 /**
+ * Register custom query vars
+ */
+add_filter('query_vars', function($vars) {
+    $vars[] = 'job_id';
+    return $vars;
+});
+
+/**
  * Custom Excerpt Length
  */
 add_filter('excerpt_length', function($length) {

@@ -16,7 +16,7 @@ $map_embed = '';
 $opening_hours = ''; // Add to theme options if needed
 
 // Check if coming from a job page
-$job_id = isset($_GET['job']) ? intval($_GET['job']) : 0;
+$job_id = isset($_GET['job_id']) ? intval($_GET['job_id']) : 0;
 $job_title = '';
 $is_job_enquiry = false;
 

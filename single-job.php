@@ -69,7 +69,7 @@ while (have_posts()) :
                             <h3 style="margin-bottom: var(--space-4);"><?php _e('Interested in this role?', 'haupt-recruitment'); ?></h3>
                             <p style="margin-bottom: var(--space-4); color: var(--text-secondary);"><?php _e('Get in touch to enquire about this position or register your CV for similar opportunities.', 'haupt-recruitment'); ?></p>
                             <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap;">
-                                <a href="<?php echo esc_url(home_url('/contact/?job=' . get_the_ID())); ?>" class="btn btn-primary btn-lg">
+                                <a href="<?php echo esc_url(home_url('/contact/?job_id=' . get_the_ID())); ?>" class="btn btn-primary btn-lg">
                                     <?php _e('Enquire about this Role', 'haupt-recruitment'); ?>
                                 </a>
                                 <a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>" class="btn btn-outline btn-lg">
