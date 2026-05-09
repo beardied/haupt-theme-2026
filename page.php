@@ -42,8 +42,12 @@ while (have_posts()) :
         
         <?php if (has_blocks()) : ?>
             <!-- Gutenberg Content -->
-            <div class="entry-content">
-                <?php the_content(); ?>
+            <div class="section">
+                <div class="container">
+                    <div class="entry-content">
+                        <?php the_content(); ?>
+                    </div>
+                </div>
             </div>
         <?php else : ?>
             <!-- Classic Editor Content -->

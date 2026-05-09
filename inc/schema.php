@@ -7,21 +7,26 @@
  */
 
 /**
- * Get Organization Schema
+ * Get Organization Schema with full details
  */
 function haupt_get_organization_schema() {
-    $name = get_bloginfo('name');
+    $name = haupt_get_company_name();
     $url = home_url();
     $phone = haupt_get_phone();
     $email = haupt_get_email();
-    $address = haupt_get_address();
+    $offices = haupt_get_offices();
     
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'Organization',
+        '@id' => $url . '#organization',
         'name' => $name,
         'url' => $url,
         'description' => get_bloginfo('description'),
+        'logo' => [
+            '@type' => 'ImageObject',
+            'url' => home_url('/wp-content/themes/hauptrecruitment-2026/assets/images/logo.png'),
+        ],
         'sameAs' => [],
     ];
     
@@ -33,21 +38,187 @@ function haupt_get_organization_schema() {
         $schema['email'] = $email;
     }
     
-    if ($address) {
+    // Primary office address
+    if (!empty($offices)) {
+        $primary_office = $offices[0];
         $schema['address'] = [
             '@type' => 'PostalAddress',
-            'streetAddress' => $address,
+            'streetAddress' => $primary_office['address'] ?? '',
+            'addressLocality' => $primary_office['city'] ?? '',
+            'addressRegion' => $primary_office['region'] ?? '',
+            'postalCode' => $primary_office['postcode'] ?? '',
+            'addressCountry' => 'GB',
         ];
+        
+        // Add all offices as separate locations
+        if (count($offices) > 1) {
+            $schema['location'] = [];
+            foreach ($offices as $office) {
+                $schema['location'][] = [
+                    '@type' => 'Place',
+                    'name' => $office['name'] ?? $name . ' Office',
+                    'telephone' => $office['phone'] ?? '',
+                    'address' => [
+                        '@type' => 'PostalAddress',
+                        'streetAddress' => $office['address'] ?? '',
+                        'addressLocality' => $office['city'] ?? '',
+                        'addressRegion' => $office['region'] ?? '',
+                        'postalCode' => $office['postcode'] ?? '',
+                        'addressCountry' => 'GB',
+                    ],
+                ];
+            }
+        }
     }
     
     // Social profiles
-    $socials = ['linkedin_url', 'twitter_url', 'facebook_url'];
-    foreach ($socials as $social) {
-        $url = haupt_get_option($social . '_url');
-        if ($url) {
-            $schema['sameAs'][] = $url;
+    $socials = [
+        'linkedin' => 'linkedin_url',
+        'twitter' => 'twitter_url',
+        'facebook' => 'facebook_url',
+        'instagram' => 'instagram_url',
+    ];
+    foreach ($socials as $platform => $option) {
+        $social_url = haupt_get_social_url($platform);
+        if ($social_url) {
+            $schema['sameAs'][] = $social_url;
         }
     }
+    
+    return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+}
+
+/**
+ * Get LocalBusiness Schema
+ */
+function haupt_get_localbusiness_schema() {
+    $name = haupt_get_company_name();
+    $url = home_url();
+    $phone = haupt_get_phone();
+    $email = haupt_get_email();
+    $offices = haupt_get_offices();
+    
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'EmploymentAgency',
+        '@id' => $url . '#localbusiness',
+        'name' => $name,
+        'url' => $url,
+        'description' => 'Specialist recruitment agency for UK Power, Wind, Offshore, HV & Cable sectors.',
+        'image' => home_url('/wp-content/themes/hauptrecruitment-2026/assets/images/logo.png'),
+        'priceRange' => '££',
+        'currenciesAccepted' => 'GBP',
+        'paymentAccepted' => 'Cash, Credit Card, Bank Transfer',
+        'areaServed' => [
+            '@type' => 'Country',
+            'name' => 'United Kingdom',
+        ],
+        'serviceType' => [
+            'Permanent Recruitment',
+            'Contract Recruitment',
+            'Executive Search',
+            'Recruitment Consulting',
+        ],
+        'hasOfferCatalog' => [
+            '@type' => 'OfferCatalog',
+            'name' => 'Recruitment Services',
+            'itemListElement' => [
+                [
+                    '@type' => 'Offer',
+                    'itemOffered' => [
+                        '@type' => 'Service',
+                        'name' => 'Permanent Recruitment',
+                        'description' => 'Finding permanent staff for power sector roles',
+                    ],
+                ],
+                [
+                    '@type' => 'Offer',
+                    'itemOffered' => [
+                        '@type' => 'Service',
+                        'name' => 'Contract Recruitment',
+                        'description' => 'Providing contract and temporary staffing solutions',
+                    ],
+                ],
+            ],
+        ],
+    ];
+    
+    if ($phone) {
+        $schema['telephone'] = $phone;
+    }
+    
+    if ($email) {
+        $schema['email'] = $email;
+    }
+    
+    // Opening hours - default business hours
+    $schema['openingHoursSpecification'] = [
+        [
+            '@type' => 'OpeningHoursSpecification',
+            'dayOfWeek' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+            'opens' => '08:00',
+            'closes' => '18:00',
+        ],
+    ];
+    
+    // Office locations
+    if (!empty($offices)) {
+        if (count($offices) === 1) {
+            $office = $offices[0];
+            $schema['address'] = [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $office['address'] ?? '',
+                'addressLocality' => $office['city'] ?? '',
+                'addressRegion' => $office['region'] ?? '',
+                'postalCode' => $office['postcode'] ?? '',
+                'addressCountry' => 'GB',
+            ];
+        } else {
+            $schema['department'] = [];
+            foreach ($offices as $office) {
+                $schema['department'][] = [
+                    '@type' => 'Place',
+                    'name' => $office['name'] ?? $name . ' Office',
+                    'telephone' => $office['phone'] ?? $phone,
+                    'address' => [
+                        '@type' => 'PostalAddress',
+                        'streetAddress' => $office['address'] ?? '',
+                        'addressLocality' => $office['city'] ?? '',
+                        'addressRegion' => $office['region'] ?? '',
+                        'postalCode' => $office['postcode'] ?? '',
+                        'addressCountry' => 'GB',
+                    ],
+                ];
+            }
+        }
+    }
+    
+    return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+}
+
+/**
+ * Get WebSite Schema
+ */
+function haupt_get_website_schema() {
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        '@id' => home_url() . '#website',
+        'url' => home_url(),
+        'name' => get_bloginfo('name'),
+        'description' => get_bloginfo('description'),
+        'publisher' => [
+            '@id' => home_url() . '#organization',
+        ],
+        'potentialAction' => [
+            '@type' => 'SearchAction',
+            'target' => [
+                '@type' => 'EntryPoint',
+                'urlTemplate' => home_url('/?s={search_term_string}'),
+            ],
+            'query-input' => 'required name=search_term_string',
+        ],
+    ];
     
     return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
 }
@@ -56,26 +227,33 @@ function haupt_get_organization_schema() {
  * Get WebPage Schema
  */
 function haupt_get_webpage_schema() {
-    if (!is_singular() && !is_front_page()) {
-        return '';
-    }
-    
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'WebPage',
-        '@id' => get_permalink(),
+        '@id' => get_permalink() . '#webpage',
         'url' => get_permalink(),
         'name' => wp_get_document_title(),
-        'description' => get_the_excerpt() ?: get_bloginfo('description'),
+        'description' => haupt_get_meta_description(),
         'inLanguage' => get_locale(),
+        'datePublished' => get_the_date('c'),
+        'dateModified' => get_the_modified_date('c'),
+        'isPartOf' => [
+            '@id' => home_url() . '#website',
+        ],
     ];
     
+    if (has_post_thumbnail()) {
+        $schema['image'] = [
+            '@type' => 'ImageObject',
+            'url' => get_the_post_thumbnail_url(null, 'full'),
+            'width' => 1200,
+            'height' => 630,
+        ];
+    }
+    
     if (is_front_page()) {
-        $schema['@type'] = 'WebSite';
-        $schema['potentialAction'] = [
-            '@type' => 'SearchAction',
-            'target' => home_url('/?s={search_term_string}'),
-            'query-input' => 'required name=search_term_string',
+        $schema['about'] = [
+            '@id' => home_url() . '#organization',
         ];
     }
     
@@ -83,7 +261,7 @@ function haupt_get_webpage_schema() {
 }
 
 /**
- * Get Article Schema (for blog posts)
+ * Get Article Schema for blog posts
  */
 function haupt_get_article_schema() {
     if (!is_singular('post')) {
@@ -93,8 +271,9 @@ function haupt_get_article_schema() {
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'Article',
+        '@id' => get_permalink() . '#article',
         'headline' => get_the_title(),
-        'description' => get_the_excerpt(),
+        'description' => get_the_excerpt() ?: get_bloginfo('description'),
         'url' => get_permalink(),
         'datePublished' => get_the_date('c'),
         'dateModified' => get_the_modified_date('c'),
@@ -104,12 +283,10 @@ function haupt_get_article_schema() {
             'url' => get_author_posts_url(get_the_author_meta('ID')),
         ],
         'publisher' => [
-            '@type' => 'Organization',
-            'name' => get_bloginfo('name'),
-            'logo' => [
-                '@type' => 'ImageObject',
-                'url' => home_url(),
-            ],
+            '@id' => home_url() . '#organization',
+        ],
+        'isPartOf' => [
+            '@id' => get_permalink() . '#webpage',
         ],
     ];
     
@@ -142,17 +319,29 @@ function haupt_get_jobposting_schema($post_id = null) {
     $job_type = haupt_get_meta('job_type', $post_id);
     $employment_type = haupt_get_meta('employment_type', $post_id) ?: 'FULL_TIME';
     $valid_through = haupt_get_meta('closing_date', $post_id);
+    $sector = haupt_get_meta('job_sector', $post_id);
+    $experience = haupt_get_meta('experience_level', $post_id);
+    $benefits = haupt_get_meta('benefits', $post_id);
+    
+    // Map employment type to schema values
+    $employment_type_map = [
+        'permanent' => 'FULL_TIME',
+        'contract' => 'CONTRACTOR',
+        'temporary' => 'TEMPORARY',
+        'part-time' => 'PART_TIME',
+    ];
+    $schema_employment_type = $employment_type_map[strtolower($employment_type)] ?? 'FULL_TIME';
     
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'JobPosting',
+        '@id' => get_permalink($post_id) . '#jobposting',
         'title' => get_the_title($post_id),
-        'description' => get_the_content(null, false, $post_id),
+        'description' => wp_strip_all_tags(get_the_content(null, false, $post_id)),
         'datePosted' => get_the_date('c', $post_id),
+        'validThrough' => $valid_through ? date('c', strtotime($valid_through)) : date('c', strtotime('+30 days')),
         'hiringOrganization' => [
-            '@type' => 'Organization',
-            'name' => get_bloginfo('name'),
-            'sameAs' => home_url(),
+            '@id' => home_url() . '#organization',
         ],
         'jobLocation' => [
             '@type' => 'Place',
@@ -162,47 +351,298 @@ function haupt_get_jobposting_schema($post_id = null) {
                 'addressCountry' => 'GB',
             ],
         ],
+        'employmentType' => $schema_employment_type,
+        'industry' => $sector ?: 'Recruitment',
+        'occupationalCategory' => $sector ?: 'Skilled Trades',
     ];
     
+    // Salary parsing
     if ($salary) {
-        // Try to extract salary range
-        preg_match('/£?([\d,]+)\s*-\s*£?([\d,]+)/', $salary, $matches);
+        // Try to extract salary range like "£40,000 - £60,000" or "40000 - 60000"
+        preg_match('/£?([\d,]+)\s*-\s*£?([\d,]+)/i', $salary, $matches);
         if ($matches) {
+            $min_salary = intval(str_replace(',', '', $matches[1]));
+            $max_salary = intval(str_replace(',', '', $matches[2]));
+            
             $schema['baseSalary'] = [
                 '@type' => 'MonetaryAmount',
                 'currency' => 'GBP',
                 'value' => [
                     '@type' => 'QuantitativeValue',
-                    'minValue' => intval(str_replace(',', '', $matches[1])),
-                    'maxValue' => intval(str_replace(',', '', $matches[2])),
+                    'minValue' => $min_salary,
+                    'maxValue' => $max_salary,
                     'unitText' => 'YEAR',
                 ],
             ];
+            
+            $schema['estimatedSalary'] = [
+                '@type' => 'MonetaryAmountDistribution',
+                'currency' => 'GBP',
+                'minValue' => $min_salary,
+                'maxValue' => $max_salary,
+                'unitText' => 'YEAR',
+            ];
+        } else {
+            // Single value
+            preg_match('/£?([\d,]+)/', $salary, $single_match);
+            if ($single_match) {
+                $value = intval(str_replace(',', '', $single_match[1]));
+                $schema['baseSalary'] = [
+                    '@type' => 'MonetaryAmount',
+                    'currency' => 'GBP',
+                    'value' => [
+                        '@type' => 'QuantitativeValue',
+                        'value' => $value,
+                        'unitText' => 'YEAR',
+                    ],
+                ];
+            }
         }
-        $schema['estimatedSalary'] = [
-            '@type' => 'MonetaryAmount',
-            'currency' => 'GBP',
-            'value' => [
-                '@type' => 'QuantitativeValue',
-                'value' => $salary,
-            ],
-        ];
     }
     
-    if ($employment_type) {
-        $schema['employmentType'] = $employment_type;
+    if ($experience) {
+        $schema['experienceRequirements'] = $experience;
     }
     
-    if ($valid_through) {
-        $schema['validThrough'] = date('c', strtotime($valid_through));
+    if ($benefits) {
+        $schema['jobBenefits'] = $benefits;
+    }
+    
+    // Job location type
+    if (stripos($location, 'remote') !== false) {
+        $schema['jobLocationType'] = 'TELECOMMUTE';
     }
     
     return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
 }
 
 /**
+ * Get Career Guide (LearningResource) Schema
+ */
+function haupt_get_career_guide_schema() {
+    if (!is_singular('role_expertise')) {
+        return '';
+    }
+    
+    $reading_time = haupt_get_meta('reading_time', null, '5 min read');
+    $salary_range = haupt_get_meta('salary_range');
+    $experience_level = haupt_get_meta('experience_level');
+    $parent_id = wp_get_post_parent_id(get_the_ID());
+    $sector = '';
+    
+    if ($parent_id) {
+        $sector = get_the_title($parent_id);
+    }
+    
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'LearningResource',
+        '@id' => get_permalink() . '#learningresource',
+        'name' => get_the_title(),
+        'headline' => get_the_title(),
+        'description' => get_the_excerpt() ?: get_bloginfo('description'),
+        'url' => get_permalink(),
+        'datePublished' => get_the_date('c'),
+        'dateModified' => get_the_modified_date('c'),
+        'author' => [
+            '@type' => 'Organization',
+            'name' => haupt_get_company_name(),
+            '@id' => home_url() . '#organization',
+        ],
+        'publisher' => [
+            '@id' => home_url() . '#organization',
+        ],
+        'isPartOf' => [
+            '@id' => get_permalink() . '#webpage',
+        ],
+        'learningResourceType' => 'Career Guide',
+        'educationalLevel' => $experience_level ?: 'Professional',
+        'timeRequired' => 'PT' . intval($reading_time) . 'M',
+        'inLanguage' => 'en-GB',
+        'audience' => [
+            '@type' => 'Audience',
+            'audienceType' => 'Job Seekers',
+        ],
+        'about' => [
+            '@type' => 'Thing',
+            'name' => $sector ?: 'Power Industry',
+        ],
+    ];
+    
+    // Also add Article schema for better search visibility
+    $article_schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Article',
+        '@id' => get_permalink() . '#article',
+        'headline' => get_the_title(),
+        'description' => get_the_excerpt() ?: get_bloginfo('description'),
+        'url' => get_permalink(),
+        'datePublished' => get_the_date('c'),
+        'dateModified' => get_the_modified_date('c'),
+        'author' => [
+            '@type' => 'Organization',
+            'name' => haupt_get_company_name(),
+        ],
+        'publisher' => [
+            '@id' => home_url() . '#organization',
+        ],
+        'articleSection' => $sector ?: 'Career Guides',
+    ];
+    
+    if (has_post_thumbnail()) {
+        $schema['image'] = [
+            '@type' => 'ImageObject',
+            'url' => get_the_post_thumbnail_url(null, 'full'),
+            'width' => 1200,
+            'height' => 630,
+        ];
+        $article_schema['image'] = $schema['image'];
+    }
+    
+    $output = '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+    $output .= "\n" . '<script type="application/ld+json">' . wp_json_encode($article_schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+    
+    return $output;
+}
+
+/**
+ * Get ContactPage Schema
+ */
+function haupt_get_contactpage_schema() {
+    if (!is_page('contact')) {
+        return '';
+    }
+    
+    $offices = haupt_get_offices();
+    $phones = [];
+    $emails = [];
+    
+    foreach ($offices as $office) {
+        if (!empty($office['phone'])) {
+            $phones[] = $office['phone'];
+        }
+        if (!empty($office['email'])) {
+            $emails[] = $office['email'];
+        }
+    }
+    
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'ContactPage',
+        '@id' => get_permalink() . '#contactpage',
+        'url' => get_permalink(),
+        'name' => get_the_title(),
+        'description' => 'Contact ' . haupt_get_company_name() . ' for recruitment services in the UK power sector.',
+        'mainEntity' => [
+            '@type' => 'Organization',
+            '@id' => home_url() . '#organization',
+            'telephone' => $phones ?: haupt_get_phone(),
+            'email' => $emails ?: haupt_get_email(),
+        ],
+    ];
+    
+    return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+}
+
+/**
+ * Get BreadcrumbList Schema
+ */
+function haupt_get_breadcrumb_schema() {
+    $breadcrumbs = haupt_get_breadcrumbs_array();
+    
+    if (empty($breadcrumbs)) {
+        return '';
+    }
+    
+    $items = [];
+    $position = 1;
+    
+    foreach ($breadcrumbs as $crumb) {
+        $item = [
+            '@type' => 'ListItem',
+            'position' => $position,
+            'name' => $crumb['title'],
+        ];
+        
+        if (!empty($crumb['url'])) {
+            $item['item'] = $crumb['url'];
+        }
+        
+        $items[] = $item;
+        $position++;
+    }
+    
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        '@id' => get_permalink() . '#breadcrumb',
+        'itemListElement' => $items,
+    ];
+    
+    return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+}
+
+/**
+ * Helper function to get breadcrumbs as array
+ */
+function haupt_get_breadcrumbs_array() {
+    $breadcrumbs = [];
+    $breadcrumbs[] = [
+        'title' => 'Home',
+        'url' => home_url(),
+    ];
+    
+    if (is_singular('job')) {
+        $breadcrumbs[] = [
+            'title' => 'Jobs',
+            'url' => get_post_type_archive_link('job'),
+        ];
+        $breadcrumbs[] = [
+            'title' => get_the_title(),
+            'url' => '',
+        ];
+    } elseif (is_singular('role_expertise')) {
+        $parent_id = wp_get_post_parent_id(get_the_ID());
+        if ($parent_id) {
+            $breadcrumbs[] = [
+                'title' => get_the_title($parent_id),
+                'url' => get_permalink($parent_id),
+            ];
+        } else {
+            $breadcrumbs[] = [
+                'title' => 'Career Guides',
+                'url' => get_post_type_archive_link('role_expertise'),
+            ];
+        }
+        $breadcrumbs[] = [
+            'title' => get_the_title(),
+            'url' => '',
+        ];
+    } elseif (is_singular()) {
+        $post_type = get_post_type();
+        $post_type_obj = get_post_type_object($post_type);
+        if ($post_type_obj && $post_type !== 'page') {
+            $breadcrumbs[] = [
+                'title' => $post_type_obj->label,
+                'url' => get_post_type_archive_link($post_type),
+            ];
+        }
+        $breadcrumbs[] = [
+            'title' => get_the_title(),
+            'url' => '',
+        ];
+    } elseif (is_archive()) {
+        $breadcrumbs[] = [
+            'title' => get_the_archive_title(),
+            'url' => '',
+        ];
+    }
+    
+    return $breadcrumbs;
+}
+
+/**
  * Get FAQPage Schema from Gutenberg Content
- * Extracts FAQ section and generates structured data
  */
 function haupt_get_faq_schema() {
     global $post;
@@ -293,6 +733,7 @@ function haupt_get_faq_schema() {
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'FAQPage',
+        '@id' => get_permalink() . '#faqpage',
         'mainEntity' => $faq_items,
     ];
     
@@ -335,33 +776,59 @@ function haupt_extract_faq_from_html($content) {
 }
 
 /**
- * Get BreadcrumbList Schema
+ * Get ItemList Schema for job archives
  */
-function haupt_get_breadcrumb_schema($breadcrumbs) {
-    if (empty($breadcrumbs)) {
+function haupt_get_job_list_schema() {
+    if (!is_post_type_archive('job')) {
         return '';
     }
     
+    global $wp_query;
     $items = [];
     $position = 1;
     
-    foreach ($breadcrumbs as $crumb) {
+    while (have_posts()) : the_post();
         $items[] = [
             '@type' => 'ListItem',
             'position' => $position,
-            'name' => $crumb['title'],
-            'item' => $crumb['url'],
+            'url' => get_permalink(),
+            'name' => get_the_title(),
         ];
         $position++;
-    }
+    endwhile;
+    
+    rewind_posts();
     
     $schema = [
         '@context' => 'https://schema.org',
-        '@type' => 'BreadcrumbList',
+        '@type' => 'ItemList',
+        '@id' => get_post_type_archive_link('job') . '#itemlist',
         'itemListElement' => $items,
     ];
     
     return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+}
+
+/**
+ * Get meta description helper
+ */
+function haupt_get_meta_description() {
+    if (is_singular()) {
+        $excerpt = get_the_excerpt();
+        if ($excerpt) {
+            return wp_trim_words($excerpt, 30, '...');
+        }
+    }
+    
+    if (is_post_type_archive('job')) {
+        return 'Browse current job vacancies in the UK power, wind, offshore, HV & cable sectors. Find your next career opportunity with Haupt Recruitment.';
+    }
+    
+    if (is_post_type_archive('role_expertise')) {
+        return 'Career guides for power industry professionals. Learn about roles, salaries, and career progression in the UK energy sector.';
+    }
+    
+    return get_bloginfo('description');
 }
 
 /**
@@ -371,8 +838,19 @@ add_action('wp_head', function() {
     // Organization schema (always output)
     echo haupt_get_organization_schema() . "\n";
     
+    // LocalBusiness schema for homepage and contact
+    if (is_front_page() || is_page('contact')) {
+        echo haupt_get_localbusiness_schema() . "\n";
+    }
+    
+    // WebSite schema
+    echo haupt_get_website_schema() . "\n";
+    
     // WebPage schema
     echo haupt_get_webpage_schema() . "\n";
+    
+    // Breadcrumb schema
+    echo haupt_get_breadcrumb_schema() . "\n";
     
     // Article schema for posts
     if (is_singular('post')) {
@@ -383,39 +861,41 @@ add_action('wp_head', function() {
     if (is_singular('job')) {
         echo haupt_get_jobposting_schema() . "\n";
     }
+    
+    // Career guide schema
+    if (is_singular('role_expertise')) {
+        echo haupt_get_career_guide_schema() . "\n";
+    }
+    
+    // Contact page schema
+    if (is_page('contact')) {
+        echo haupt_get_contactpage_schema() . "\n";
+    }
+    
+    // FAQ schema (if present on page)
+    $faq_schema = haupt_get_faq_schema();
+    if ($faq_schema) {
+        echo $faq_schema . "\n";
+    }
+    
+    // Job list schema for archives
+    if (is_post_type_archive('job')) {
+        echo haupt_get_job_list_schema() . "\n";
+    }
 }, 5);
 
 /**
- * Add schema to job archive
+ * Add schema types to body class for targeting
  */
-add_action('haupt_before_job_archive', function() {
-    $schema = [
-        '@context' => 'https://schema.org',
-        '@type' => 'ItemList',
-        'itemListElement' => [],
-    ];
-    
-    global $wp_query;
-    $position = 1;
-    
-    while (have_posts()) : the_post();
-        $schema['itemListElement'][] = [
-            '@type' => 'ListItem',
-            'position' => $position,
-            'url' => get_permalink(),
-        ];
-        $position++;
-    endwhile;
-    
-    rewind_posts();
-    
-    echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+add_filter('body_class', function($classes) {
+    if (is_singular('job')) {
+        $classes[] = 'schema-jobposting';
+    }
+    if (is_singular('role_expertise')) {
+        $classes[] = 'schema-learningresource';
+    }
+    if (is_front_page()) {
+        $classes[] = 'schema-homepage';
+    }
+    return $classes;
 });
-
-/**
- * Add HowTo schema for expert guides
- * Note: HowTo content should be added via Gutenberg blocks
- */
-function haupt_get_howto_schema() {
-    return '';
-}

@@ -10,21 +10,36 @@ $has_offices = !empty($offices);
 ?>
     </main>
     
+    <!-- Eco / Net Zero Section -->
+    <section class="eco-section">
+        <div class="container">
+            <h2 class="eco-title">Driving Sustainable Recruitment.</h2>
+            <p class="eco-text">Haupt Recruitment is proud to support the UK's Pathway to Net Zero. Through our partnership with Oxycarbon, we help our clients build greener workforces and more resilient businesses.</p>
+            <a href="https://oxycarbon.uk/" class="btn btn-eco" target="_blank" rel="nofollow sponsored" aria-label="Learn more about carbon reduction at Oxycarbon UK">
+                Explore Net Zero Solutions
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </a>
+        </div>
+    </section>
+    
     <!-- Footer CTA -->
     <div class="footer-cta">
         <div class="container">
-            <h2 class="footer-cta-title">Ready to Power Your Career or Team?</h2>
-            <p class="footer-cta-text">Whether you're seeking your next opportunity in the power sector or need skilled professionals for your project, we're here to connect talent with opportunity.</p>
+            <h2 class="footer-cta-title">Ready to Power Your Next Move?</h2>
+            <p class="footer-cta-text">Whether you're looking for your dream role or need to build your dream team, we're here to make it happen.</p>
             <div class="footer-cta-buttons">
-                <a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>" class="btn btn-lg" style="background: var(--white); color: var(--accent-600);">
-                    Browse Jobs
+                <a href="<?php echo esc_url(home_url('/register-with-us/')); ?>" class="btn btn-lg" style="background: var(--white); color: var(--accent-600);">
+                    Register Your CV
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                         <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
                 </a>
                 <a href="<?php echo esc_url(home_url('/employer-contact/')); ?>" class="btn btn-ghost btn-lg">
-                    Hire Talent
+                    I'm Looking to Hire
                 </a>
             </div>
         </div>
@@ -80,34 +95,68 @@ $has_offices = !empty($offices);
                     
                     <!-- Column 2: For Candidates -->
                     <div>
-                        <h4 class="footer-title">For Candidates</h4>
-                        <ul class="footer-menu">
-                            <li><a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>">Search Jobs</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/register-with-us/')); ?>">Register with Us</a></li>
-                            <li><a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>">Career Guides</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/48-hour-opt-out/')); ?>">48-Hour Opt-Out</a></li>
-                        </ul>
+                        <h4 class="footer-title"><?php _e('For Candidates', 'haupt-recruitment'); ?></h4>
+                        <?php
+                        if (haupt_nav_menu_has_items('candidates')) {
+                            wp_nav_menu([
+                                'theme_location' => 'candidates',
+                                'menu_class' => 'footer-menu',
+                                'container' => false,
+                                'depth' => 1,
+                            ]);
+                        } else {
+                            // Fallback until menu is configured
+                            ?><ul class="footer-menu">
+                                <li><a href="<?php echo esc_url(get_post_type_archive_link('job')); ?>">Search Jobs</a></li>
+                                <li><a href="<?php echo esc_url(home_url('/register-with-us/')); ?>">Register with Us</a></li>
+                                <li><a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>">Career Guides</a></li>
+                                <li><a href="<?php echo esc_url(home_url('/48-hour-opt-out/')); ?>">48-Hour Opt-Out</a></li>
+                            </ul><?php
+                        }
+                        ?>
                     </div>
                     
                     <!-- Column 3: For Employers -->
                     <div>
-                        <h4 class="footer-title">For Employers</h4>
-                        <ul class="footer-menu">
-                            <li><a href="<?php echo esc_url(home_url('/employers/')); ?>">Our Services</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/employer-contact/')); ?>">Contact Us</a></li>
-                            <li><a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>">Sectors We Cover</a></li>
-                        </ul>
+                        <h4 class="footer-title"><?php _e('For Employers', 'haupt-recruitment'); ?></h4>
+                        <?php
+                        if (haupt_nav_menu_has_items('employers')) {
+                            wp_nav_menu([
+                                'theme_location' => 'employers',
+                                'menu_class' => 'footer-menu',
+                                'container' => false,
+                                'depth' => 1,
+                            ]);
+                        } else {
+                            ?><ul class="footer-menu">
+                                <li><a href="<?php echo esc_url(home_url('/our-services/')); ?>">Our Services</a></li>
+                                <li><a href="<?php echo esc_url(home_url('/employer-contact/')); ?>">Contact Us</a></li>
+                                <li><a href="<?php echo esc_url(get_post_type_archive_link('role_expertise')); ?>">Sectors We Cover</a></li>
+                                <li><a href="<?php echo esc_url(home_url('/training/')); ?>">Training</a></li>
+                            </ul><?php
+                        }
+                        ?>
                     </div>
                     
                     <!-- Column 4: Company -->
                     <div>
-                        <h4 class="footer-title">Company</h4>
-                        <ul class="footer-menu">
-                            <li><a href="<?php echo esc_url(home_url('/about/')); ?>">About Us</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/blog/')); ?>">News & Insights</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/contact/')); ?>">Contact</a></li>
-                            <li><a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>">Privacy Policy</a></li>
-                        </ul>
+                        <h4 class="footer-title"><?php _e('Company', 'haupt-recruitment'); ?></h4>
+                        <?php
+                        if (haupt_nav_menu_has_items('company')) {
+                            wp_nav_menu([
+                                'theme_location' => 'company',
+                                'menu_class' => 'footer-menu',
+                                'container' => false,
+                                'depth' => 1,
+                            ]);
+                        } else {
+                            ?><ul class="footer-menu">
+                                <li><a href="<?php echo esc_url(home_url('/about/')); ?>">About Us</a></li>
+                                <li><a href="<?php echo esc_url(home_url('/contact/')); ?>">Contact</a></li>
+                                <li><a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>">Privacy Policy</a></li>
+                            </ul><?php
+                        }
+                        ?>
                     </div>
                 </div>
             </div>
@@ -180,12 +229,24 @@ $has_offices = !empty($offices);
                         <span class="company-reg"><?php printf(__('Company Reg: %s', 'haupt-recruitment'), esc_html($reg)); ?></span>
                         <?php endif; ?>
                     </p>
-                    <div class="footer-legal">
-                        <a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>">Privacy Policy</a>
-                        <a href="<?php echo esc_url(home_url('/terms-conditions/')); ?>">Terms & Conditions</a>
-                        <a href="<?php echo esc_url(home_url('/cookie-policy/')); ?>">Cookie Policy</a>
-                        <a href="<?php echo esc_url(home_url('/48-hour-opt-out/')); ?>">48-Hour Opt-Out</a>
-                    </div>
+                    <?php
+                    $footer_bottom_location = haupt_nav_menu_has_items('footer-bottom') ? 'footer-bottom' : (haupt_nav_menu_has_items('footer') ? 'footer' : '');
+                    if ($footer_bottom_location) {
+                        wp_nav_menu([
+                            'theme_location' => $footer_bottom_location,
+                            'menu_class' => 'footer-legal',
+                            'container' => false,
+                            'depth' => 1,
+                        ]);
+                    } else {
+                        ?><div class="footer-legal">
+                            <a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>">Privacy Policy</a>
+                            <a href="<?php echo esc_url(home_url('/terms-conditions/')); ?>">Terms & Conditions</a>
+                            <a href="<?php echo esc_url(home_url('/cookie-policy/')); ?>">Cookie Policy</a>
+                            <a href="<?php echo esc_url(home_url('/48-hour-opt-out/')); ?>">48-Hour Opt-Out</a>
+                        </div><?php
+                    }
+                    ?>
                 </div>
             </div>
         </div>

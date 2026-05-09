@@ -113,6 +113,22 @@ $stat_years = haupt_get_stat('years');
                 'number' => 10,
             ]);
             
+            // Reorder: move 'Transmission & Distribution' to first position
+            if (!empty($sectors) && !is_wp_error($sectors)) {
+                $transmission_key = null;
+                foreach ($sectors as $key => $sector) {
+                    if (stripos($sector->name, 'Transmission') !== false) {
+                        $transmission_key = $key;
+                        break;
+                    }
+                }
+                if ($transmission_key !== null) {
+                    $transmission = $sectors[$transmission_key];
+                    unset($sectors[$transmission_key]);
+                    $sectors = array_merge([$transmission], $sectors);
+                }
+            }
+            
             if (!empty($sectors) && !is_wp_error($sectors)) :
                 foreach ($sectors as $index => $sector) :
                     // Get sector image using our new function
@@ -319,7 +335,7 @@ $stat_years = haupt_get_stat('years');
                             </svg>
                         </div>
                         <div class="feature-text">
-                            <h4><?php _e('Industry Specialists', 'haupt-recruitment'); ?></h4>
+                            <h3><?php _e('Industry Specialists', 'haupt-recruitment'); ?></h3>
                             <p><?php _e('Deep sector knowledge gained from years of exclusive focus on power and energy recruitment.', 'haupt-recruitment'); ?></p>
                         </div>
                     </div>
@@ -331,7 +347,7 @@ $stat_years = haupt_get_stat('years');
                             </svg>
                         </div>
                         <div class="feature-text">
-                            <h4><?php _e('Rapid Response', 'haupt-recruitment'); ?></h4>
+                            <h3><?php _e('Rapid Response', 'haupt-recruitment'); ?></h3>
                             <p><?php _e('Fast turnaround on urgent requirements without compromising on candidate quality.', 'haupt-recruitment'); ?></p>
                         </div>
                     </div>
@@ -346,7 +362,7 @@ $stat_years = haupt_get_stat('years');
                             </svg>
                         </div>
                         <div class="feature-text">
-                            <h4><?php _e('Verified Talent Pool', 'haupt-recruitment'); ?></h4>
+                            <h3><?php _e('Verified Talent Pool', 'haupt-recruitment'); ?></h3>
                             <p><?php _e('Rigorous screening and qualification process ensures only the best candidates.', 'haupt-recruitment'); ?></p>
                         </div>
                     </div>
@@ -359,7 +375,7 @@ $stat_years = haupt_get_stat('years');
                             </svg>
                         </div>
                         <div class="feature-text">
-                            <h4><?php _e('Nationwide Coverage', 'haupt-recruitment'); ?></h4>
+                            <h3><?php _e('Nationwide Coverage', 'haupt-recruitment'); ?></h3>
                             <p><?php _e('UK-wide reach with local expertise to support projects anywhere in the country.', 'haupt-recruitment'); ?></p>
                         </div>
                     </div>

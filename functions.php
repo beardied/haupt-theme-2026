@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Theme version for cache busting
-define('HAUPT_VERSION', '1.0.34');
+define('HAUPT_VERSION', '1.0.52');
 define('HAUPT_DIR', get_template_directory());
 define('HAUPT_URI', get_template_directory_uri());
 
@@ -24,12 +24,9 @@ define('HAUPT_URI', get_template_directory_uri());
  * @return string Version string
  */
 function haupt_get_file_version($file_path = '') {
-    // If in debug mode or no file specified, use filemtime for auto cache busting
-    if ((defined('WP_DEBUG') && WP_DEBUG) || empty($file_path)) {
-        $full_path = HAUPT_DIR . '/' . ltrim($file_path, '/');
-        if (file_exists($full_path)) {
-            return HAUPT_VERSION . '.' . filemtime($full_path);
-        }
+    $full_path = HAUPT_DIR . '/' . ltrim($file_path, '/');
+    if (file_exists($full_path)) {
+        return HAUPT_VERSION . '.' . filemtime($full_path);
     }
     return HAUPT_VERSION;
 }
@@ -39,7 +36,7 @@ function haupt_get_file_version($file_path = '') {
  */
 add_action('after_setup_theme', function() {
     // Add theme support
-    add_theme_support('title-tag');
+    // Note: title-tag is handled manually in header.php for SEO control
     add_theme_support('post-thumbnails');
     add_theme_support('html5', [
         'search-form',
@@ -137,6 +134,8 @@ add_action('after_setup_theme', function() {
         'mobile' => __('Mobile Menu', 'haupt-recruitment'),
         'employers' => __('Employers Menu', 'haupt-recruitment'),
         'candidates' => __('Candidates Menu', 'haupt-recruitment'),
+        'company' => __('Company Menu', 'haupt-recruitment'),
+        'footer-bottom' => __('Footer Bottom Menu', 'haupt-recruitment'),
     ]);
     
     // Image sizes
@@ -153,27 +152,27 @@ add_action('after_setup_theme', function() {
  * Enqueue Scripts and Styles
  */
 add_action('wp_enqueue_scripts', function() {
-    // Google Fonts
+    // Local Fonts
     wp_enqueue_style(
         'haupt-fonts',
-        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap',
+        HAUPT_URI . '/assets/css/fonts.css',
         [],
-        null
+        haupt_get_file_version('assets/css/fonts.css')
     );
     
-    // AOS Animation Library
+    // AOS Animation Library (local)
     wp_enqueue_style(
         'aos-css',
-        'https://unpkg.com/aos@2.3.1/dist/aos.css',
+        HAUPT_URI . '/assets/css/aos.css',
         [],
-        '2.3.1'
+        haupt_get_file_version('assets/css/aos.css')
     );
     
     wp_enqueue_script(
         'aos-js',
-        'https://unpkg.com/aos@2.3.1/dist/aos.js',
+        HAUPT_URI . '/assets/js/aos.js',
         [],
-        '2.3.1',
+        haupt_get_file_version('assets/js/aos.js'),
         true
     );
     
@@ -278,6 +277,84 @@ add_action('enqueue_block_editor_assets', function() {
 });
 
 /**
+ * Disable Comments Completely
+ */
+// Disable support for comments and trackbacks in post types
+add_action('admin_init', function() {
+    $post_types = get_post_types();
+    foreach ($post_types as $post_type) {
+        if (post_type_supports($post_type, 'comments')) {
+            remove_post_type_support($post_type, 'comments');
+            remove_post_type_support($post_type, 'trackbacks');
+        }
+    }
+});
+
+// Close comments on the front-end
+add_filter('comments_open', '__return_false', 20, 2);
+add_filter('pings_open', '__return_false', 20, 2);
+
+// Hide existing comments
+add_filter('comments_array', function($comments) {
+    return [];
+}, 10, 2);
+
+// Remove comments page from admin menu
+add_action('admin_menu', function() {
+    remove_menu_page('edit-comments.php');
+});
+
+// Remove comments from admin bar
+add_action('wp_before_admin_bar_render', function() {
+    global $wp_admin_bar;
+    $wp_admin_bar->remove_menu('comments');
+});
+
+// Disable comments metabox on dashboard
+add_action('wp_dashboard_setup', function() {
+    remove_meta_box('dashboard_recent_comments', 'dashboard', 'normal');
+});
+
+// Remove comment links from frontend
+add_action('wp', function() {
+    wp_deregister_script('comment-reply');
+});
+
+/**
+ * Disable RSS Feeds
+ */
+// Redirect all feed URLs to homepage
+add_action('template_redirect', function() {
+    if (is_feed()) {
+        wp_redirect(home_url(), 301);
+        exit;
+    }
+});
+
+// Remove feed links from wp_head
+add_action('init', function() {
+    remove_action('wp_head', 'feed_links', 2);
+    remove_action('wp_head', 'feed_links_extra', 3);
+    remove_action('wp_head', 'rsd_link');
+    remove_action('wp_head', 'wlwmanifest_link');
+});
+
+// Disable feed URL rewriting
+add_filter('rewrite_rules_array', function($rules) {
+    foreach ($rules as $rule => $rewrite) {
+        if (preg_match('/feed|/(feed|rdf|rss|rss2|atom)//i', $rule)) {
+            unset($rules[$rule]);
+        }
+    }
+    return $rules;
+});
+
+// Remove feed enqueues
+add_action('wp_enqueue_scripts', function() {
+    wp_dequeue_style('wp-block-library-theme');
+}, 100);
+
+/**
  * Include required files
  */
 require_once HAUPT_DIR . '/inc/theme-options.php';
@@ -286,6 +363,7 @@ require_once HAUPT_DIR . '/inc/taxonomy-images.php';
 require_once HAUPT_DIR . '/inc/schema.php';
 require_once HAUPT_DIR . '/inc/breadcrumbs.php';
 require_once HAUPT_DIR . '/inc/template-functions.php';
+require_once HAUPT_DIR . '/inc/sitemap.php';
 require_once HAUPT_DIR . '/inc/customizer.php';
 require_once HAUPT_DIR . '/inc/class-haupt-forms.php';
 
@@ -568,63 +646,151 @@ add_action('wp_ajax_haupt_filter_jobs', 'haupt_filter_jobs');
 add_action('wp_ajax_nopriv_haupt_filter_jobs', 'haupt_filter_jobs');
 
 function haupt_filter_jobs() {
-    check_ajax_referer('haupt_nonce', 'nonce');
+    check_ajax_referer('haupt_jobs_nonce', 'nonce');
     
+    $page = isset($_POST['page']) ? intval($_POST['page']) : 1;
+    $keyword = isset($_POST['keyword']) ? sanitize_text_field($_POST['keyword']) : '';
     $sector = isset($_POST['sector']) ? sanitize_text_field($_POST['sector']) : '';
     $location = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
+    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
     
     $args = [
         'post_type' => 'job',
         'posts_per_page' => 12,
         'post_status' => 'publish',
+        'paged' => $page,
     ];
     
+    // Keyword search
+    if ($keyword) {
+        $args['s'] = $keyword;
+    }
+    
+    // Taxonomy filters (support multiple comma-separated values)
     $tax_query = [];
     
     if ($sector) {
-        $tax_query[] = [
-            'taxonomy' => 'job_sector',
-            'field' => 'slug',
-            'terms' => $sector,
-        ];
+        $sectors = array_filter(explode(',', $sector));
+        if (!empty($sectors)) {
+            $tax_query[] = [
+                'taxonomy' => 'job_sector',
+                'field' => 'slug',
+                'terms' => $sectors,
+                'operator' => 'IN',
+            ];
+        }
     }
     
     if ($location) {
-        $tax_query[] = [
-            'taxonomy' => 'job_location',
-            'field' => 'slug',
-            'terms' => $location,
-        ];
+        $locations = array_filter(explode(',', $location));
+        if (!empty($locations)) {
+            $tax_query[] = [
+                'taxonomy' => 'job_location',
+                'field' => 'slug',
+                'terms' => $locations,
+                'operator' => 'IN',
+            ];
+        }
+    }
+    
+    if ($category) {
+        $categories = array_filter(explode(',', $category));
+        if (!empty($categories)) {
+            $tax_query[] = [
+                'taxonomy' => 'job_category',
+                'field' => 'slug',
+                'terms' => $categories,
+                'operator' => 'IN',
+            ];
+        }
     }
     
     if (!empty($tax_query)) {
+        if (count($tax_query) > 1) {
+            $tax_query['relation'] = 'AND';
+        }
         $args['tax_query'] = $tax_query;
     }
     
     $query = new WP_Query($args);
-    $jobs = [];
+    $html = '';
+    $delay = 0;
     
     if ($query->have_posts()) {
         while ($query->have_posts()) {
             $query->the_post();
-            $jobs[] = [
-                'id' => get_the_ID(),
-                'title' => get_the_title(),
-                'permalink' => get_permalink(),
-                'excerpt' => get_the_excerpt(),
-                'thumbnail' => get_the_post_thumbnail_url(get_the_ID(), 'card'),
-                'location' => haupt_get_meta('job_location', $post->ID),
-                'salary' => haupt_get_meta('salary', $post->ID),
-                'type' => haupt_get_meta('job_type', $post->ID),
-            ];
+            $job_location = haupt_get_meta('job_location');
+            $salary = haupt_get_meta('salary');
+            $job_type = haupt_get_meta('job_type');
+            $job_sectors = get_the_terms(get_the_ID(), 'job_sector');
+            
+            ob_start();
+            ?>
+            <article class="card job-card" data-aos="fade-up" data-aos-delay="<?php echo $delay; ?>">
+                <?php if (has_post_thumbnail()) : ?>
+                    <div class="card-image">
+                        <a href="<?php the_permalink(); ?>">
+                            <?php the_post_thumbnail('card'); ?>
+                        </a>
+                        <?php if ($job_sectors && !is_wp_error($job_sectors)) : ?>
+                            <span class="card-badge"><?php echo esc_html($job_sectors[0]->name); ?></span>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <div class="card-content">
+                    <div class="card-meta">
+                        <?php if ($job_location) : ?>
+                            <span class="card-meta-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                <?php echo esc_html($job_location); ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if ($job_type) : ?>
+                            <span class="card-meta-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                </svg>
+                                <?php echo esc_html($job_type); ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <h3 class="card-title">
+                        <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+                    </h3>
+                    
+                    <div class="card-text">
+                        <?php echo wp_trim_words(get_the_excerpt(), 20); ?>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <?php if ($salary) : ?>
+                            <span class="card-salary"><?php echo esc_html($salary); ?></span>
+                        <?php endif; ?>
+                        <a href="<?php the_permalink(); ?>" class="btn btn-sm btn-primary">
+                            <?php _e('View Details', 'haupt-recruitment'); ?>
+                        </a>
+                    </div>
+                </div>
+            </article>
+            <?php
+            $html .= ob_get_clean();
+            $delay += 100;
+            if ($delay > 500) $delay = 0;
         }
     }
     
     wp_reset_postdata();
     
     wp_send_json_success([
-        'jobs' => $jobs,
+        'html' => $html,
         'found_posts' => $query->found_posts,
+        'has_more' => $query->max_num_pages > $page,
     ]);
 }
 
@@ -650,3 +816,64 @@ function haupt_get_stats() {
     
     return rest_ensure_response($stats);
 }
+
+/**
+ * Job Archive Filter - Handle taxonomy filtering via URL parameters
+ */
+add_action('pre_get_posts', function($query) {
+    // Only modify job archive main query
+    if (is_admin() || !$query->is_main_query() || !is_post_type_archive('job')) {
+        return;
+    }
+    
+    $tax_query = [];
+    
+    // Filter by sector
+    if (!empty($_GET['sector'])) {
+        $tax_query[] = [
+            'taxonomy' => 'job_sector',
+            'field' => 'slug',
+            'terms' => sanitize_text_field($_GET['sector']),
+        ];
+    }
+    
+    // Filter by location
+    if (!empty($_GET['location'])) {
+        $tax_query[] = [
+            'taxonomy' => 'job_location',
+            'field' => 'slug',
+            'terms' => sanitize_text_field($_GET['location']),
+        ];
+    }
+    
+    // Filter by type
+    if (!empty($_GET['type'])) {
+        $tax_query[] = [
+            'taxonomy' => 'job_type',
+            'field' => 'slug',
+            'terms' => sanitize_text_field($_GET['type']),
+        ];
+    }
+    
+    // Filter by category
+    if (!empty($_GET['category'])) {
+        $tax_query[] = [
+            'taxonomy' => 'job_category',
+            'field' => 'slug',
+            'terms' => sanitize_text_field($_GET['category']),
+        ];
+    }
+    
+    // Apply tax query if we have filters
+    if (!empty($tax_query)) {
+        if (count($tax_query) > 1) {
+            $tax_query['relation'] = 'AND';
+        }
+        $query->set('tax_query', $tax_query);
+    }
+    
+    // Handle search
+    if (!empty($_GET['s'])) {
+        $query->set('s', sanitize_text_field($_GET['s']));
+    }
+});

@@ -39,6 +39,7 @@ class Haupt_Forms {
         add_action('init', [$this, 'handle_candidate_registration']);
         add_action('init', [$this, 'handle_employer_contact']);
         add_action('init', [$this, 'handle_opt_out_form']);
+        add_action('init', [$this, 'handle_contact_form']);
         
         // Admin menu
         add_action('admin_menu', [$this, 'add_admin_menu']);
@@ -108,6 +109,7 @@ class Haupt_Forms {
             'candidate_email' => get_option('haupt_form_candidate_email', get_option('admin_email')),
             'employer_email' => get_option('haupt_form_employer_email', get_option('admin_email')),
             'optout_email' => get_option('haupt_form_optout_email', get_option('admin_email')),
+            'contact_email' => get_option('haupt_form_contact_email', get_option('admin_email')),
             'notification_from' => get_option('haupt_form_from_email', 'noreply@' . parse_url(home_url(), PHP_URL_HOST)),
         ];
     }
@@ -180,6 +182,10 @@ class Haupt_Forms {
         // Send emails
         $this->send_candidate_emails($_POST, $uploaded_files, $pdf_path, $settings);
         
+        // Increment Qualified Candidates counter
+        $current_candidates = get_option('haupt_stat_candidates', 15000);
+        update_option('haupt_stat_candidates', $current_candidates + 1);
+        
         // Redirect to success page
         wp_redirect(add_query_arg([
             'registration' => 'success',
@@ -216,7 +222,7 @@ class Haupt_Forms {
         $subject = sprintf(__('New Employer Enquiry: %s', 'haupt-recruitment'), sanitize_text_field($_POST['company_name']));
         
         $admin_content = '
-            <h2 style="color: #002d72; margin: 0 0 20px 0; font-size: 22px;">New Employer Enquiry</h2>
+            <h2 style="color: #334155; margin: 0 0 20px 0; font-size: 22px;">New Employer Enquiry</h2>
             
             <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">A new employer enquiry has been submitted via the website.</p>
             
@@ -225,7 +231,7 @@ class Haupt_Forms {
                     <table width="100%" cellpadding="8" cellspacing="0" border="0">
                         <tr>
                             <td width="140" style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Company:</td>
-                            <td style="color: #002d72; font-weight: 500; border-bottom: 1px solid #e5e5e5;">' . esc_html($_POST['company_name']) . '</td>
+                            <td style="color: #334155; font-weight: 500; border-bottom: 1px solid #e5e5e5;">' . esc_html($_POST['company_name']) . '</td>
                         </tr>
                         <tr>
                             <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Contact Name:</td>
@@ -233,11 +239,11 @@ class Haupt_Forms {
                         </tr>
                         <tr>
                             <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Email:</td>
-                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="mailto:' . esc_attr($_POST['email']) . '" style="color: #00a5b5; text-decoration: none;">' . esc_html($_POST['email']) . '</a></td>
+                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="mailto:' . esc_attr($_POST['email']) . '" style="color: #3b82f6; text-decoration: none;">' . esc_html($_POST['email']) . '</a></td>
                         </tr>
                         <tr>
                             <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Phone:</td>
-                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="tel:' . esc_attr(preg_replace('/\s+/', '', $_POST['phone'])) . '" style="color: #00a5b5; text-decoration: none;">' . esc_html($_POST['phone']) . '</a></td>
+                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="tel:' . esc_attr(preg_replace('/\s+/', '', $_POST['phone'])) . '" style="color: #3b82f6; text-decoration: none;">' . esc_html($_POST['phone']) . '</a></td>
                         </tr>
                         <tr>
                             <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Industry:</td>
@@ -259,8 +265,8 @@ class Haupt_Forms {
                 </td></tr>
             </table>
             
-            <div style="background-color: #e8f4f5; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                <h4 style="color: #002d72; margin: 0 0 10px 0; font-size: 15px;">Job Requirements</h4>
+            <div style="background-color: #eff6ff; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h4 style="color: #334155; margin: 0 0 10px 0; font-size: 15px;">Job Requirements</h4>
                 <p style="color: #444; margin: 0; line-height: 1.6; white-space: pre-wrap;">' . nl2br(esc_html($_POST['job_requirements'])) . '</p>
             </div>
         ';
@@ -280,6 +286,171 @@ class Haupt_Forms {
         // Redirect to success page
         wp_redirect(add_query_arg('enquiry', 'success', $_POST['_wp_http_referer']));
         exit;
+    }
+    
+    /**
+     * Handle Contact Form
+     */
+    public function handle_contact_form() {
+        if (!isset($_POST['action']) || $_POST['action'] !== 'haupt_contact_form') {
+            return;
+        }
+        
+        // Verify nonce
+        if (!isset($_POST['contact_nonce']) || !wp_verify_nonce($_POST['contact_nonce'], 'contact_form_nonce')) {
+            wp_die(__('Security check failed. Please try again.', 'haupt-recruitment') . '<br><a href="' . esc_url($_SERVER['HTTP_REFERER'] ?? home_url('/contact/')) . '">' . __('Go Back', 'haupt-recruitment') . '</a>');
+        }
+        
+        $settings = $this->get_settings();
+        $errors = [];
+        
+        // Validation
+        $required = ['name', 'email', 'enquiry_type', 'message'];
+        foreach ($required as $field) {
+            if (empty($_POST[$field])) {
+                $errors[] = sprintf(__('%s is required', 'haupt-recruitment'), ucfirst(str_replace('_', ' ', $field)));
+            }
+        }
+        
+        // Email validation
+        if (!empty($_POST['email']) && !is_email($_POST['email'])) {
+            $errors[] = __('Please enter a valid email address', 'haupt-recruitment');
+        }
+        
+        // Honeypot check (spam protection)
+        if (!empty($_POST['website'])) {
+            $errors[] = __('Spam detected', 'haupt-recruitment');
+        }
+        
+        // Privacy check
+        if (empty($_POST['privacy'])) {
+            $errors[] = __('You must agree to the Privacy Policy', 'haupt-recruitment');
+        }
+        
+        if (!empty($errors)) {
+            wp_die(implode('<br>', $errors) . '<br><a href="' . esc_url($_SERVER['HTTP_REFERER'] ?? home_url('/contact/')) . '">' . __('Go Back', 'haupt-recruitment') . '</a>');
+        }
+        
+        // Use dedicated contact form email setting
+        $to = $settings['contact_email'];
+        
+        // Build subject
+        $subject = __('New Contact Form Enquiry', 'haupt-recruitment');
+        if (!empty($_POST['job_title'])) {
+            $subject .= ': ' . sanitize_text_field($_POST['job_title']);
+        }
+        
+        // Build email content
+        $enquiry_types = [
+            'candidate' => 'Looking for work',
+            'employer' => 'Looking to hire',
+            'general' => 'General enquiry'
+        ];
+        
+        $admin_content = '
+            <h2 style="color: #334155; margin: 0 0 20px 0; font-size: 22px;">New Contact Form Enquiry</h2>
+            
+            <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">A new enquiry has been submitted via the website contact form.</p>
+            
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f9fa; border-radius: 8px; margin: 20px 0;">
+                <tr><td style="padding: 20px;">
+                    <table width="100%" cellpadding="8" cellspacing="0" border="0">
+                        <tr>
+                            <td width="140" style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Name:</td>
+                            <td style="color: #334155; font-weight: 500; border-bottom: 1px solid #e5e5e5;">' . esc_html($_POST['name']) . '</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Email:</td>
+                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="mailto:' . esc_attr($_POST['email']) . '" style="color: #3b82f6; text-decoration: none;">' . esc_html($_POST['email']) . '</a></td>
+                        </tr>
+                        <tr>
+                            <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Phone:</td>
+                            <td style="border-bottom: 1px solid #e5e5e5;">' . (!empty($_POST['phone']) ? '<a href="tel:' . esc_attr(preg_replace('/\s+/', '', $_POST['phone'])) . '" style="color: #3b82f6; text-decoration: none;">' . esc_html($_POST['phone']) . '</a>' : '-') . '</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Enquiry Type:</td>
+                            <td style="color: #444; border-bottom: 1px solid #e5e5e5;">' . esc_html($enquiry_types[$enquiry_type] ?? $enquiry_type) . '</td>
+                        </tr>';
+        
+        if (!empty($_POST['job_title'])) {
+            $admin_content .= '
+                        <tr>
+                            <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Job Enquiry:</td>
+                            <td style="color: #444; border-bottom: 1px solid #e5e5e5;">' . esc_html($_POST['job_title']) . '</td>
+                        </tr>';
+        }
+        
+        $admin_content .= '
+                    </table>
+                </td></tr>
+            </table>
+            
+            <div style="background-color: #eff6ff; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h4 style="color: #334155; margin: 0 0 10px 0; font-size: 15px;">Message</h4>
+                <p style="color: #444; margin: 0; line-height: 1.6; white-space: pre-wrap;">' . nl2br(esc_html($_POST['message'])) . '</p>
+            </div>
+        ';
+        
+        $message = $this->get_email_template($admin_content, 'New Contact Enquiry');
+        
+        $headers = [
+            'From: ' . $settings['notification_from'],
+            'Content-Type: text/html; charset=UTF-8',
+            'Reply-To: ' . sanitize_email($_POST['email'])
+        ];
+        
+        wp_mail($to, $subject, $message, $headers);
+        
+        // Send auto-response to the user
+        $this->send_contact_auto_response($_POST, $settings);
+        
+        // Redirect to success page
+        $redirect_url = !empty($_POST['_wp_http_referer']) ? $_POST['_wp_http_referer'] : home_url('/contact/');
+        wp_redirect(add_query_arg('contact', 'success', $redirect_url));
+        exit;
+    }
+    
+    /**
+     * Send contact form auto-response
+     */
+    private function send_contact_auto_response($data, $settings) {
+        $subject = __('Thank you for contacting Haupt Recruitment', 'haupt-recruitment');
+        
+        $enquiry_types = [
+            'candidate' => 'looking for work',
+            'employer' => 'looking to hire',
+            'general' => 'general enquiry'
+        ];
+        
+        $enquiry_type = $enquiry_types[$data['enquiry_type']] ?? 'your enquiry';
+        
+        $content = '
+            <h2 style="color: #334155; margin: 0 0 20px 0; font-size: 22px;">Thank You for Your Enquiry</h2>
+            
+            <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Dear ' . esc_html($data['name']) . ',</p>
+            
+            <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Thank you for contacting Haupt Recruitment UK Ltd regarding ' . $enquiry_type . '.</p>
+            
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 4px solid #3b82f6; padding: 20px; border-radius: 0 8px 8px 0; margin: 25px 0;">
+                <h3 style="color: #334155; margin: 0 0 10px 0; font-size: 16px;">What Happens Next?</h3>
+                <ul style="color: #444; margin: 0; padding-left: 20px; line-height: 1.8;">
+                    <li>We have received your message and will review it shortly</li>
+                    <li>One of our consultants will contact you within 24 hours</li>
+                    <li>We will discuss your requirements in detail</li>
+                </ul>
+            </div>
+            
+            <p style="color: #444; font-size: 15px; line-height: 1.6; margin: 20px 0;">If you have any urgent questions, please do not hesitate to call us directly.</p>
+        ';
+        
+        $message = $this->get_email_template($content, 'Enquiry Confirmation');
+        
+        $headers = [
+            'From: ' . $settings['notification_from'],
+            'Content-Type: text/html; charset=UTF-8'
+        ];
+        
+        wp_mail($data['email'], $subject, $message, $headers);
     }
     
     /**
@@ -644,8 +815,8 @@ class Haupt_Forms {
     private function get_email_template($content, $title = '') {
         $site_name = get_bloginfo('name');
         $site_url = home_url();
-        $primary_color = '#002d72';
-        $accent_color = '#00a5b5';
+        $primary_color = '#334155';
+        $accent_color = '#3b82f6';
         
         return <<<HTML
 <!DOCTYPE html>
@@ -662,9 +833,9 @@ class Haupt_Forms {
                 <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
                     <!-- Header -->
                     <tr>
-                        <td style="background: linear-gradient(135deg, {$primary_color} 0%, #001a4d 100%); padding: 30px 40px; text-align: center;">
+                        <td style="background: linear-gradient(135deg, {$primary_color} 0%, #1e293b 100%); padding: 30px 40px; text-align: center;">
                             <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">HAUPT RECRUITMENT</h1>
-                            <p style="color: #00a5b5; margin: 8px 0 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 2px;">UK Power & Energy Specialists</p>
+                            <p style="color: #3b82f6; margin: 8px 0 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 2px;">UK Power & Energy Specialists</p>
                         </td>
                     </tr>
                     
@@ -717,7 +888,7 @@ HTML;
         
         // HTML email for admin
         $admin_content = '
-            <h2 style="color: #002d72; margin: 0 0 20px 0; font-size: 22px;">New Candidate Registration</h2>
+            <h2 style="color: #334155; margin: 0 0 20px 0; font-size: 22px;">New Candidate Registration</h2>
             <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">A new candidate has registered on the website. Please find their details below:</p>
             
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8f9fa; border-radius: 8px; margin: 20px 0;">
@@ -725,15 +896,15 @@ HTML;
                     <table width="100%" cellpadding="8" cellspacing="0" border="0">
                         <tr>
                             <td width="120" style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Name:</td>
-                            <td style="color: #002d72; font-weight: 500; border-bottom: 1px solid #e5e5e5;">' . esc_html($data['first_name'] . ' ' . $data['last_name']) . '</td>
+                            <td style="color: #334155; font-weight: 500; border-bottom: 1px solid #e5e5e5;">' . esc_html($data['first_name'] . ' ' . $data['last_name']) . '</td>
                         </tr>
                         <tr>
                             <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Email:</td>
-                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="mailto:' . esc_attr($data['email']) . '" style="color: #00a5b5; text-decoration: none;">' . esc_html($data['email']) . '</a></td>
+                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="mailto:' . esc_attr($data['email']) . '" style="color: #3b82f6; text-decoration: none;">' . esc_html($data['email']) . '</a></td>
                         </tr>
                         <tr>
                             <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Phone:</td>
-                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="tel:' . esc_attr(preg_replace('/\s+/', '', $data['phone'])) . '" style="color: #00a5b5; text-decoration: none;">' . esc_html($data['phone']) . '</a></td>
+                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="tel:' . esc_attr(preg_replace('/\s+/', '', $data['phone'])) . '" style="color: #3b82f6; text-decoration: none;">' . esc_html($data['phone']) . '</a></td>
                         </tr>
                         <tr>
                             <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">NI Number:</td>
@@ -770,12 +941,12 @@ HTML;
         $email = haupt_get_option('email_address');
         
         $candidate_content = '
-            <h2 style="color: #002d72; margin: 0 0 20px 0; font-size: 22px;">Thank You for Registering, ' . esc_html($data['first_name']) . '!</h2>
+            <h2 style="color: #334155; margin: 0 0 20px 0; font-size: 22px;">Thank You for Registering, ' . esc_html($data['first_name']) . '!</h2>
             
             <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">We have successfully received your registration details and CV. One of our specialist consultants will review your information and contact you shortly.</p>
             
-            <div style="background: linear-gradient(135deg, #e8f4f5 0%, #d4ebf0 100%); border-left: 4px solid #00a5b5; padding: 20px; border-radius: 0 8px 8px 0; margin: 25px 0;">
-                <h3 style="color: #002d72; margin: 0 0 10px 0; font-size: 16px;">What Happens Next?</h3>
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 4px solid #3b82f6; padding: 20px; border-radius: 0 8px 8px 0; margin: 25px 0;">
+                <h3 style="color: #334155; margin: 0 0 10px 0; font-size: 16px;">What Happens Next?</h3>
                 <ul style="color: #444; margin: 0; padding-left: 20px; line-height: 1.8;">
                     <li>Our team will review your CV and experience</li>
                     <li>We will match you with suitable opportunities</li>
@@ -786,10 +957,10 @@ HTML;
             <p style="color: #444; font-size: 15px; line-height: 1.6; margin: 20px 0;">A copy of your registration agreement is attached to this email for your records.</p>
             
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
-                <h4 style="color: #002d72; margin: 0 0 15px 0; font-size: 15px;">Contact Us</h4>
+                <h4 style="color: #334155; margin: 0 0 15px 0; font-size: 15px;">Contact Us</h4>
                 <p style="color: #666; margin: 5px 0; font-size: 14px;">
-                    <strong>Phone:</strong> <a href="tel:' . esc_attr(preg_replace('/\s+/', '', $phone)) . '" style="color: #00a5b5; text-decoration: none;">' . esc_html($phone) . '</a><br>
-                    <strong>Email:</strong> <a href="mailto:' . esc_attr($email) . '" style="color: #00a5b5; text-decoration: none;">' . esc_html($email) . '</a>
+                    <strong>Phone:</strong> <a href="tel:' . esc_attr(preg_replace('/\s+/', '', $phone)) . '" style="color: #3b82f6; text-decoration: none;">' . esc_html($phone) . '</a><br>
+                    <strong>Email:</strong> <a href="mailto:' . esc_attr($email) . '" style="color: #3b82f6; text-decoration: none;">' . esc_html($email) . '</a>
                 </p>
             </div>
             
@@ -808,14 +979,14 @@ HTML;
         $subject = __('Your enquiry with Haupt Recruitment', 'haupt-recruitment');
         
         $content = '
-            <h2 style="color: #002d72; margin: 0 0 20px 0; font-size: 22px;">Thank You for Your Enquiry</h2>
+            <h2 style="color: #334155; margin: 0 0 20px 0; font-size: 22px;">Thank You for Your Enquiry</h2>
             
             <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Dear ' . esc_html($data['contact_name']) . ',</p>
             
-            <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Thank you for contacting Haupt Recruitment UK Ltd regarding staffing requirements for <strong style="color: #002d72;">' . esc_html($data['company_name']) . '</strong>.</p>
+            <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Thank you for contacting Haupt Recruitment UK Ltd regarding staffing requirements for <strong style="color: #334155;">' . esc_html($data['company_name']) . '</strong>.</p>
             
-            <div style="background: linear-gradient(135deg, #e8f4f5 0%, #d4ebf0 100%); border-left: 4px solid #00a5b5; padding: 20px; border-radius: 0 8px 8px 0; margin: 25px 0;">
-                <h3 style="color: #002d72; margin: 0 0 10px 0; font-size: 16px;">What Happens Next?</h3>
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 4px solid #3b82f6; padding: 20px; border-radius: 0 8px 8px 0; margin: 25px 0;">
+                <h3 style="color: #334155; margin: 0 0 10px 0; font-size: 16px;">What Happens Next?</h3>
                 <ul style="color: #444; margin: 0; padding-left: 20px; line-height: 1.8;">
                     <li>One of our specialist consultants will review your requirements</li>
                     <li>We will contact you within 24 hours to discuss your needs</li>
@@ -826,11 +997,11 @@ HTML;
             <p style="color: #444; font-size: 15px; line-height: 1.6; margin: 20px 0;">In the meantime, if you have any urgent requirements, please do not hesitate to call us directly.</p>
             
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
-                <h4 style="color: #002d72; margin: 0 0 15px 0; font-size: 15px;">Your Enquiry Summary</h4>
+                <h4 style="color: #334155; margin: 0 0 15px 0; font-size: 15px;">Your Enquiry Summary</h4>
                 <table width="100%" cellpadding="5" cellspacing="0" border="0" style="font-size: 14px;">
                     <tr>
                         <td width="100" style="color: #666;">Company:</td>
-                        <td style="color: #002d72; font-weight: 500;">' . esc_html($data['company_name']) . '</td>
+                        <td style="color: #334155; font-weight: 500;">' . esc_html($data['company_name']) . '</td>
                     </tr>
                     <tr>
                         <td style="color: #666;">Industry:</td>
@@ -858,7 +1029,7 @@ HTML;
         
         // Admin notification with HTML
         $admin_content = '
-            <h2 style="color: #002d72; margin: 0 0 20px 0; font-size: 22px;">48-Hour Opt-Out Agreement Submitted</h2>
+            <h2 style="color: #334155; margin: 0 0 20px 0; font-size: 22px;">48-Hour Opt-Out Agreement Submitted</h2>
             
             <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">A new 48-hour opt-out agreement has been submitted via the website.</p>
             
@@ -867,11 +1038,11 @@ HTML;
                     <table width="100%" cellpadding="8" cellspacing="0" border="0">
                         <tr>
                             <td width="120" style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Name:</td>
-                            <td style="color: #002d72; font-weight: 500; border-bottom: 1px solid #e5e5e5;">' . esc_html($data['first_name'] . ' ' . $data['last_name']) . '</td>
+                            <td style="color: #334155; font-weight: 500; border-bottom: 1px solid #e5e5e5;">' . esc_html($data['first_name'] . ' ' . $data['last_name']) . '</td>
                         </tr>
                         <tr>
                             <td style="color: #666; font-weight: 600; border-bottom: 1px solid #e5e5e5;">Email:</td>
-                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="mailto:' . esc_attr($data['email']) . '" style="color: #00a5b5; text-decoration: none;">' . esc_html($data['email']) . '</a></td>
+                            <td style="border-bottom: 1px solid #e5e5e5;"><a href="mailto:' . esc_attr($data['email']) . '" style="color: #3b82f6; text-decoration: none;">' . esc_html($data['email']) . '</a></td>
                         </tr>
                         <tr>
                             <td style="color: #666; font-weight: 600;">NI Number:</td>
@@ -895,14 +1066,14 @@ HTML;
         $candidate_subject = __('Your 48-Hour Opt-Out Agreement', 'haupt-recruitment');
         
         $candidate_content = '
-            <h2 style="color: #002d72; margin: 0 0 20px 0; font-size: 22px;">48-Hour Opt-Out Agreement Confirmation</h2>
+            <h2 style="color: #334155; margin: 0 0 20px 0; font-size: 22px;">48-Hour Opt-Out Agreement Confirmation</h2>
             
             <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Dear ' . esc_html($data['first_name']) . ',</p>
             
             <p style="color: #444; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Thank you for submitting your 48-hour opt-out agreement with Haupt Recruitment UK Ltd.</p>
             
-            <div style="background: linear-gradient(135deg, #e8f4f5 0%, #d4ebf0 100%); border-left: 4px solid #00a5b5; padding: 20px; border-radius: 0 8px 8px 0; margin: 25px 0;">
-                <h3 style="color: #002d72; margin: 0 0 10px 0; font-size: 16px;">What This Means</h3>
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 4px solid #3b82f6; padding: 20px; border-radius: 0 8px 8px 0; margin: 25px 0;">
+                <h3 style="color: #334155; margin: 0 0 10px 0; font-size: 16px;">What This Means</h3>
                 <p style="color: #444; margin: 0; line-height: 1.6;">By opting out, you agree that the Conduct of Employment Agencies and Employment Businesses Regulations 2003 shall not apply to introductions made by Haupt Recruitment, even if you are already known to the hirer.</p>
             </div>
             
@@ -959,6 +1130,7 @@ HTML;
         register_setting('haupt_form_settings', 'haupt_form_candidate_email');
         register_setting('haupt_form_settings', 'haupt_form_employer_email');
         register_setting('haupt_form_settings', 'haupt_form_optout_email');
+        register_setting('haupt_form_settings', 'haupt_form_contact_email');
         register_setting('haupt_form_settings', 'haupt_form_from_email');
     }
     
@@ -992,6 +1164,13 @@ HTML;
                         <td>
                             <input type="email" name="haupt_form_optout_email" value="<?php echo esc_attr($settings['optout_email']); ?>" class="regular-text">
                             <p class="description"><?php _e('Where 48-hour opt-out agreements are sent', 'haupt-recruitment'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php _e('Contact Form Email', 'haupt-recruitment'); ?></th>
+                        <td>
+                            <input type="email" name="haupt_form_contact_email" value="<?php echo esc_attr($settings['contact_email']); ?>" class="regular-text">
+                            <p class="description"><?php _e('Where contact form enquiries are sent', 'haupt-recruitment'); ?></p>
                         </td>
                     </tr>
                     <tr>

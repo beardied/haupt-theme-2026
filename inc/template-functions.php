@@ -12,6 +12,23 @@
 class Haupt_Walker_Nav_Menu extends Walker_Nav_Menu {
     
     /**
+     * Add last-item class to the final top-level menu item.
+     */
+    public function walk($elements, $max_depth, ...$args) {
+        // Find the last top-level item and mark it
+        $last_top_index = null;
+        foreach ($elements as $index => $element) {
+            if ($element->menu_item_parent == 0) {
+                $last_top_index = $index;
+            }
+        }
+        if ($last_top_index !== null) {
+            $elements[$last_top_index]->classes[] = 'last-item';
+        }
+        return parent::walk($elements, $max_depth, ...$args);
+    }
+    
+    /**
      * Starts the element output.
      */
     public function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
@@ -67,6 +84,21 @@ class Haupt_Walker_Nav_Menu extends Walker_Nav_Menu {
         
         $output .= apply_filters('walker_nav_menu_start_el', $item_output, $item, $depth, $args);
     }
+}
+
+/**
+ * Check if a nav menu location has actual items (not just assigned)
+ */
+function haupt_nav_menu_has_items($location) {
+    if (!has_nav_menu($location)) {
+        return false;
+    }
+    $locations = get_nav_menu_locations();
+    if (!isset($locations[$location])) {
+        return false;
+    }
+    $items = wp_get_nav_menu_items($locations[$location]);
+    return !empty($items);
 }
 
 /**
@@ -225,3 +257,215 @@ add_filter('embed_oembed_html', function($html, $url, $attr, $post_id) {
  * Remove archive title prefixes
  */
 add_filter('get_the_archive_title_prefix', '__return_empty_string');
+
+/**
+ * Get SEO Meta Title
+ * Generates appropriate title tag for all page types
+ */
+function haupt_get_seo_title() {
+    $site_name = get_bloginfo('name');
+    $separator = ' | ';
+    
+    // Single job
+    if (is_singular('job')) {
+        $title = get_the_title();
+        $company = get_post_meta(get_the_ID(), 'company_name', true);
+        if ($company) {
+            return $title . ' at ' . $company . $separator . $site_name;
+        }
+        return $title . $separator . 'Jobs' . $separator . $site_name;
+    }
+    
+    // Career guide / role expertise
+    if (is_singular('role_expertise')) {
+        return get_the_title() . $separator . 'Career Guide' . $separator . $site_name;
+    }
+    
+    // Single post
+    if (is_singular('post')) {
+        return get_the_title() . $separator . 'Blog' . $separator . $site_name;
+    }
+    
+    // Single page
+    if (is_singular('page')) {
+        return get_the_title() . $separator . $site_name;
+    }
+    
+    // Job archive
+    if (is_post_type_archive('job')) {
+        return 'Jobs' . $separator . $site_name;
+    }
+    
+    // Career guide archive
+    if (is_post_type_archive('role_expertise')) {
+        return 'Career Guides' . $separator . $site_name;
+    }
+    
+    // Job taxonomy archives
+    if (is_tax('job_sector')) {
+        return single_term_title('', false) . ' Jobs' . $separator . $site_name;
+    }
+    if (is_tax('job_location')) {
+        return 'Jobs in ' . single_term_title('', false) . $separator . $site_name;
+    }
+    if (is_tax('job_type')) {
+        return single_term_title('', false) . ' Jobs' . $separator . $site_name;
+    }
+    if (is_tax('job_category')) {
+        return single_term_title('', false) . ' Jobs' . $separator . $site_name;
+    }
+    
+    // Category archive
+    if (is_category()) {
+        return single_cat_title('', false) . $separator . 'Blog' . $separator . $site_name;
+    }
+    
+    // Tag archive
+    if (is_tag()) {
+        return single_tag_title('', false) . $separator . 'Blog' . $separator . $site_name;
+    }
+    
+    // Author archive
+    if (is_author()) {
+        return get_the_author() . $separator . 'Author' . $separator . $site_name;
+    }
+    
+    // Search results
+    if (is_search()) {
+        return 'Search: ' . get_search_query() . $separator . $site_name;
+    }
+    
+    // 404 page
+    if (is_404()) {
+        return 'Page Not Found' . $separator . $site_name;
+    }
+    
+    // Blog archive
+    if (is_home()) {
+        return 'Blog' . $separator . $site_name;
+    }
+    
+    // Date archives
+    if (is_year()) {
+        return get_the_date('Y') . $separator . 'Blog' . $separator . $site_name;
+    }
+    if (is_month()) {
+        return get_the_date('F Y') . $separator . 'Blog' . $separator . $site_name;
+    }
+    if (is_day()) {
+        return get_the_date('F j, Y') . $separator . 'Blog' . $separator . $site_name;
+    }
+    
+    // Default
+    return $site_name;
+}
+
+/**
+ * Get SEO Meta Description
+ * Generates appropriate meta description for all page types
+ */
+function haupt_get_seo_description() {
+    // Homepage (check first as it can also be a page)
+    if (is_front_page()) {
+        return haupt_get_option('homepage_hero_subtitle', 'Specialist recruitment for maritime, offshore, renewables and construction. Connecting talented professionals with leading companies worldwide.');
+    }
+    
+    // Try to get custom excerpt first for singular pages
+    if (is_singular() && has_excerpt()) {
+        return wp_strip_all_tags(get_the_excerpt(), true);
+    }
+    
+    // Single job
+    if (is_singular('job')) {
+        $description = get_post_meta(get_the_ID(), 'short_description', true);
+        if ($description) {
+            return wp_strip_all_tags($description, true);
+        }
+        // Fall back to content excerpt
+        return wp_trim_words(get_the_content(null, false, get_the_ID()), 25, '...');
+    }
+    
+    // Career guide / role expertise
+    if (is_singular('role_expertise')) {
+        $description = get_post_meta(get_the_ID(), 'guide_excerpt', true);
+        if ($description) {
+            return wp_strip_all_tags($description, true);
+        }
+        return wp_trim_words(get_the_content(null, false, get_the_ID()), 25, '...');
+    }
+    
+    // Single post or page
+    if (is_singular()) {
+        $content = get_the_content(null, false, get_the_ID());
+        if (!empty($content)) {
+            return wp_trim_words($content, 25, '...');
+        }
+    }
+    
+    // Job archive
+    if (is_post_type_archive('job')) {
+        return 'Browse ' . haupt_get_option('stats_live_jobs', '500+') . ' job vacancies across maritime, renewables, energy and construction sectors. Find your next career move with Haupt Recruitment.';
+    }
+    
+    // Career guide archive
+    if (is_post_type_archive('role_expertise')) {
+        return 'Explore career guides for maritime, offshore, renewables and construction industries. Expert advice on qualifications, salaries and career progression.';
+    }
+    
+    // Job taxonomy archives
+    if (is_tax('job_sector')) {
+        $term = get_queried_object();
+        return 'Browse ' . $term->name . ' jobs. Find the latest vacancies and career opportunities in the ' . $term->name . ' sector with Haupt Recruitment.';
+    }
+    if (is_tax('job_location')) {
+        $term = get_queried_object();
+        return 'Find jobs in ' . $term->name . '. Browse the latest vacancies and career opportunities in ' . $term->name . ' with Haupt Recruitment.';
+    }
+    if (is_tax('job_type')) {
+        $term = get_queried_object();
+        return 'Browse ' . $term->name . ' jobs. Find flexible and permanent ' . $term->name . ' positions with Haupt Recruitment.';
+    }
+    if (is_tax('job_category')) {
+        $term = get_queried_object();
+        return 'Browse ' . $term->name . ' jobs. Find the latest vacancies in ' . $term->name . ' with Haupt Recruitment.';
+    }
+    
+    // Category archive
+    if (is_category()) {
+        $term = get_queried_object();
+        $description = $term->description;
+        if ($description) {
+            return wp_strip_all_tags($description, true);
+        }
+        return 'Browse articles in ' . $term->name . '. Latest news, insights and career advice from Haupt Recruitment.';
+    }
+    
+    // Tag archive
+    if (is_tag()) {
+        $term = get_queried_object();
+        return 'Browse articles tagged with "' . $term->name . '". Latest insights and career advice from Haupt Recruitment.';
+    }
+    
+    // Author archive
+    if (is_author()) {
+        return 'Articles by ' . get_the_author() . '. Career advice and industry insights from Haupt Recruitment.';
+    }
+    
+    // Search results
+    if (is_search()) {
+        return 'Search results for "' . get_search_query() . '". Find jobs, career guides and articles on Haupt Recruitment.';
+    }
+    
+    // 404 page
+    if (is_404()) {
+        return 'The page you are looking for could not be found. Browse our jobs and career guides or contact us for assistance.';
+    }
+    
+    // Blog archive
+    if (is_home()) {
+        return 'Latest news, insights and career advice from Haupt Recruitment. Expert guidance for maritime, offshore, renewables and construction careers.';
+    }
+    
+    // Default fallback - never return empty
+    return 'Specialist recruitment for the UK Power, Wind, Offshore, HV & Cable sectors. Find your next job or hire top talent with Haupt Recruitment.';
+}
