@@ -363,6 +363,7 @@ require_once HAUPT_DIR . '/inc/schema-meta-box.php';
 require_once HAUPT_DIR . '/inc/breadcrumbs.php';
 require_once HAUPT_DIR . '/inc/template-functions.php';
 require_once HAUPT_DIR . '/inc/sitemap.php';
+require_once HAUPT_DIR . '/inc/llms.php';
 require_once HAUPT_DIR . '/inc/customizer.php';
 require_once HAUPT_DIR . '/inc/class-haupt-forms.php';
 

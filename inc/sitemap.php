@@ -124,6 +124,7 @@ function haupt_generate_sitemap_index() {
         'job-locations' => 'Job Locations',
         'job-types' => 'Job Types',
         'job-categories' => 'Job Categories',
+        'career-guide-categories' => 'Career Guide Categories',
         'categories' => 'Categories',
         'tags' => 'Tags',
     ];
@@ -177,6 +178,9 @@ function haupt_generate_sitemap_section($section) {
         case 'job-categories':
             haupt_sitemap_taxonomy('job_category');
             break;
+        case 'career-guide-categories':
+            haupt_sitemap_taxonomy('role_expertise_category');
+            break;
         case 'categories':
             haupt_sitemap_taxonomy('category');
             break;
@@ -210,6 +214,9 @@ function haupt_get_last_modified($section) {
             break;
         case 'career-guides':
             $date = $wpdb->get_var("SELECT MAX(post_modified_gmt) FROM {$wpdb->posts} WHERE post_type = 'role_expertise' AND post_status = 'publish'");
+            break;
+        case 'career-guide-categories':
+            $date = $wpdb->get_var("SELECT MAX(p.post_modified_gmt) FROM {$wpdb->posts} p INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy = 'role_expertise_category' AND p.post_status = 'publish'");
             break;
         default:
             $date = current_time('mysql', 1);
@@ -384,13 +391,60 @@ function haupt_sitemap_taxonomy($taxonomy) {
 }
 
 /**
- * Add sitemap to robots.txt
+ * Enhanced robots.txt
+ * Blocks system directories, search results, feeds, and unused archive pages.
+ * Keeps Sitemap reference. Allows uploads, CSS, JS, and images.
  */
 add_filter('robots_txt', function($output, $public) {
-    if ($public) {
-        $output .= "Sitemap: " . home_url('/sitemap.xml') . "\n";
+    if (!$public) {
+        return $output;
     }
-    return $output;
+
+    $extra = "\n";
+    $extra .= "# System directories\n";
+    $extra .= "Disallow: /wp-includes/\n";
+    $extra .= "Disallow: /wp-content/plugins/\n";
+    $extra .= "Disallow: /wp-content/mu-plugins/\n";
+    $extra .= "Disallow: /wp-content/cache/\n";
+    $extra .= "Disallow: /wp-admin/\n";
+    $extra .= "Allow: /wp-admin/admin-ajax.php\n";
+    $extra .= "\n";
+    $extra .= "# Search, feeds, and utility URLs\n";
+    $extra .= "Disallow: /search/\n";
+    $extra .= "Disallow: /*?s=\n";
+    $extra .= "Disallow: /*&s=\n";
+    $extra .= "Disallow: /feed/\n";
+    $extra .= "Disallow: /comments/feed/\n";
+    $extra .= "Disallow: /*/feed/\n";
+    $extra .= "Disallow: /*/feed/rss/\n";
+    $extra .= "Disallow: /*/trackback/\n";
+    $extra .= "Disallow: /*?*\n";
+    $extra .= "\n";
+    $extra .= "# Archives (not used as primary content)\n";
+    $extra .= "Disallow: /author/\n";
+    $extra .= "Disallow: /date/\n";
+    $extra .= "Disallow: /category/\n";
+    $extra .= "Disallow: /tag/\n";
+    $extra .= "\n";
+    $extra .= "# Media and uploads are allowed\n";
+    $extra .= "Allow: /wp-content/uploads/\n";
+    $extra .= "Allow: /*.css$\n";
+    $extra .= "Allow: /*.js$\n";
+    $extra .= "Allow: /*.png$\n";
+    $extra .= "Allow: /*.jpg$\n";
+    $extra .= "Allow: /*.jpeg$\n";
+    $extra .= "Allow: /*.gif$\n";
+    $extra .= "Allow: /*.svg$\n";
+    $extra .= "Allow: /*.webp$\n";
+    $extra .= "Allow: /*.woff$\n";
+    $extra .= "Allow: /*.woff2$\n";
+    $extra .= "\n";
+    $extra .= "# LLM context file\n";
+    $extra .= "Allow: /llms.txt\n";
+    $extra .= "\n";
+    $extra .= "Sitemap: " . home_url('/sitemap.xml') . "\n";
+
+    return $output . $extra;
 }, 10, 2);
 
 
