@@ -7,6 +7,21 @@
  */
 
 /**
+ * Get logo URL for schema markup
+ * Uses customizer logo if available, falls back to theme default
+ */
+function haupt_get_schema_logo_url() {
+    $logo_id = get_theme_mod('haupt_logo');
+    if ($logo_id) {
+        $logo_url = wp_get_attachment_image_url($logo_id, 'full');
+        if ($logo_url) {
+            return $logo_url;
+        }
+    }
+    return HAUPT_URI . '/assets/images/logo.png';
+}
+
+/**
  * Get Organization Schema with full details
  */
 function haupt_get_organization_schema() {
@@ -25,9 +40,17 @@ function haupt_get_organization_schema() {
         'description' => get_bloginfo('description'),
         'logo' => [
             '@type' => 'ImageObject',
-            'url' => home_url('/wp-content/themes/hauptrecruitment-2026/assets/images/logo.png'),
+            'url' => haupt_get_schema_logo_url(),
         ],
         'sameAs' => [],
+        'knowsAbout' => [
+            'UK Power Sector Recruitment',
+            'Wind Energy Recruitment',
+            'Offshore Recruitment',
+            'HV & Cable Recruitment',
+            'Substation Recruitment',
+            'Transmission & Distribution',
+        ],
     ];
     
     if ($phone) {
@@ -105,7 +128,7 @@ function haupt_get_localbusiness_schema() {
         'name' => $name,
         'url' => $url,
         'description' => 'Specialist recruitment agency for UK Power, Wind, Offshore, HV & Cable sectors.',
-        'image' => home_url('/wp-content/themes/hauptrecruitment-2026/assets/images/logo.png'),
+        'image' => haupt_get_schema_logo_url(),
         'priceRange' => '££',
         'currenciesAccepted' => 'GBP',
         'paymentAccepted' => 'Cash, Credit Card, Bank Transfer',
@@ -143,12 +166,28 @@ function haupt_get_localbusiness_schema() {
         ],
     ];
     
+    // Contact points for Google knowledge panel
+    $contact_points = [];
     if ($phone) {
         $schema['telephone'] = $phone;
+        $contact_points[] = [
+            '@type' => 'ContactPoint',
+            'telephone' => $phone,
+            'contactType' => 'customer service',
+            'availableLanguage' => ['English'],
+        ];
     }
-    
     if ($email) {
         $schema['email'] = $email;
+        $contact_points[] = [
+            '@type' => 'ContactPoint',
+            'email' => $email,
+            'contactType' => 'customer service',
+            'availableLanguage' => ['English'],
+        ];
+    }
+    if (!empty($contact_points)) {
+        $schema['contactPoint'] = $contact_points;
     }
     
     // Opening hours - default business hours
@@ -225,15 +264,18 @@ function haupt_get_website_schema() {
 
 /**
  * Get WebPage Schema
+ * Uses haupt_get_seo_description() for rich descriptions
  */
 function haupt_get_webpage_schema() {
+    $description = function_exists('haupt_get_seo_description') ? haupt_get_seo_description() : haupt_get_meta_description();
+    
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'WebPage',
         '@id' => get_permalink() . '#webpage',
         'url' => get_permalink(),
         'name' => wp_get_document_title(),
-        'description' => haupt_get_meta_description(),
+        'description' => $description,
         'inLanguage' => get_locale(),
         'datePublished' => get_the_date('c'),
         'dateModified' => get_the_modified_date('c'),
@@ -254,6 +296,69 @@ function haupt_get_webpage_schema() {
     if (is_front_page()) {
         $schema['about'] = [
             '@id' => home_url() . '#organization',
+        ];
+    }
+    
+    return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+}
+
+/**
+ * Get AboutPage Schema
+ */
+function haupt_get_aboutpage_schema() {
+    if (!is_page('about-us')) {
+        return '';
+    }
+    
+    $offices = haupt_get_offices();
+    $phone = haupt_get_phone();
+    $email = haupt_get_email();
+    
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'AboutPage',
+        '@id' => get_permalink() . '#aboutpage',
+        'url' => get_permalink(),
+        'name' => get_the_title(),
+        'description' => function_exists('haupt_get_seo_description') ? haupt_get_seo_description() : get_bloginfo('description'),
+        'inLanguage' => get_locale(),
+        'datePublished' => get_the_date('c'),
+        'dateModified' => get_the_modified_date('c'),
+        'isPartOf' => [
+            '@id' => home_url() . '#website',
+        ],
+        'mainEntity' => [
+            '@type' => 'Organization',
+            '@id' => home_url() . '#organization',
+            'name' => haupt_get_company_name(),
+            'url' => home_url(),
+            'logo' => haupt_get_schema_logo_url(),
+            'sameAs' => [],
+        ],
+    ];
+    
+    // Add social profiles
+    $socials = ['linkedin', 'twitter', 'facebook', 'instagram'];
+    foreach ($socials as $platform) {
+        $url = haupt_get_social_url($platform);
+        if ($url) {
+            $schema['mainEntity']['sameAs'][] = $url;
+        }
+    }
+    
+    if ($phone) {
+        $schema['mainEntity']['telephone'] = $phone;
+    }
+    if ($email) {
+        $schema['mainEntity']['email'] = $email;
+    }
+    
+    if (has_post_thumbnail()) {
+        $schema['image'] = [
+            '@type' => 'ImageObject',
+            'url' => get_the_post_thumbnail_url(null, 'full'),
+            'width' => 1200,
+            'height' => 630,
         ];
     }
     
@@ -304,6 +409,7 @@ function haupt_get_article_schema() {
 
 /**
  * Get JobPosting Schema
+ * Google for Jobs compatible with auto-renewing validThrough
  */
 function haupt_get_jobposting_schema($post_id = null) {
     if (!$post_id) {
@@ -322,6 +428,7 @@ function haupt_get_jobposting_schema($post_id = null) {
     $sector = haupt_get_meta('job_sector', $post_id);
     $experience = haupt_get_meta('experience_level', $post_id);
     $benefits = haupt_get_meta('benefits', $post_id);
+    $company_name = haupt_get_meta('company_name', $post_id);
     
     // Map employment type to schema values
     $employment_type_map = [
@@ -332,6 +439,15 @@ function haupt_get_jobposting_schema($post_id = null) {
     ];
     $schema_employment_type = $employment_type_map[strtolower($employment_type)] ?? 'FULL_TIME';
     
+    // validThrough: use closing date if set, otherwise 1 year from post date (auto-renews based on post date)
+    if ($valid_through) {
+        $valid_through_date = date('c', strtotime($valid_through));
+    } else {
+        $post_date = get_post_datetime($post_id);
+        $valid_through_date = $post_date->format('c');
+        $valid_through_date = date('c', strtotime($valid_through_date . ' +1 year'));
+    }
+    
     $schema = [
         '@context' => 'https://schema.org',
         '@type' => 'JobPosting',
@@ -339,9 +455,19 @@ function haupt_get_jobposting_schema($post_id = null) {
         'title' => get_the_title($post_id),
         'description' => wp_strip_all_tags(get_the_content(null, false, $post_id)),
         'datePosted' => get_the_date('c', $post_id),
-        'validThrough' => $valid_through ? date('c', strtotime($valid_through)) : date('c', strtotime('+30 days')),
+        'validThrough' => $valid_through_date,
+        'directApply' => true,
+        'identifier' => [
+            '@type' => 'PropertyValue',
+            'name' => haupt_get_company_name(),
+            'value' => 'HAUPT-' . $post_id,
+        ],
         'hiringOrganization' => [
+            '@type' => 'Organization',
             '@id' => home_url() . '#organization',
+            'name' => $company_name ?: haupt_get_company_name(),
+            'logo' => haupt_get_schema_logo_url(),
+            'url' => home_url(),
         ],
         'jobLocation' => [
             '@type' => 'Place',
@@ -352,7 +478,7 @@ function haupt_get_jobposting_schema($post_id = null) {
             ],
         ],
         'employmentType' => $schema_employment_type,
-        'industry' => $sector ?: 'Recruitment',
+        'industry' => $sector ?: 'Energy & Power',
         'occupationalCategory' => $sector ?: 'Skilled Trades',
     ];
     
@@ -417,7 +543,8 @@ function haupt_get_jobposting_schema($post_id = null) {
 }
 
 /**
- * Get Career Guide (LearningResource) Schema
+ * Get Career Guide TechArticle Schema
+ * TechArticle is stronger than generic Article for expert content
  */
 function haupt_get_career_guide_schema() {
     if (!is_singular('role_expertise')) {
@@ -427,6 +554,7 @@ function haupt_get_career_guide_schema() {
     $reading_time = haupt_get_meta('reading_time', null, '5 min read');
     $salary_range = haupt_get_meta('salary_range');
     $experience_level = haupt_get_meta('experience_level');
+    $qualifications = haupt_get_meta('required_qualifications');
     $parent_id = wp_get_post_parent_id(get_the_ID());
     $sector = '';
     
@@ -434,12 +562,21 @@ function haupt_get_career_guide_schema() {
         $sector = get_the_title($parent_id);
     }
     
+    // Get category terms for better context
+    $categories = get_the_terms(get_the_ID(), 'role_expertise_category');
+    $category_names = [];
+    if ($categories && !is_wp_error($categories)) {
+        foreach ($categories as $cat) {
+            $category_names[] = $cat->name;
+        }
+    }
+    
     $schema = [
         '@context' => 'https://schema.org',
-        '@type' => 'LearningResource',
-        '@id' => get_permalink() . '#learningresource',
-        'name' => get_the_title(),
+        '@type' => 'TechArticle',
+        '@id' => get_permalink() . '#techarticle',
         'headline' => get_the_title(),
+        'name' => get_the_title(),
         'description' => get_the_excerpt() ?: get_bloginfo('description'),
         'url' => get_permalink(),
         'datePublished' => get_the_date('c'),
@@ -455,39 +592,34 @@ function haupt_get_career_guide_schema() {
         'isPartOf' => [
             '@id' => get_permalink() . '#webpage',
         ],
-        'learningResourceType' => 'Career Guide',
-        'educationalLevel' => $experience_level ?: 'Professional',
-        'timeRequired' => 'PT' . intval($reading_time) . 'M',
+        'articleSection' => $sector ?: 'Career Guides',
+        'proficiencyLevel' => $experience_level ?: 'Professional',
         'inLanguage' => 'en-GB',
         'audience' => [
             '@type' => 'Audience',
-            'audienceType' => 'Job Seekers',
+            'audienceType' => 'Job Seekers in UK Energy Sector',
         ],
         'about' => [
             '@type' => 'Thing',
-            'name' => $sector ?: 'Power Industry',
+            'name' => $sector ?: 'Power Industry Careers',
+            'description' => 'Career information and guidance for ' . get_the_title() . ' roles in the UK energy sector.',
         ],
     ];
     
-    // Also add Article schema for better search visibility
-    $article_schema = [
-        '@context' => 'https://schema.org',
-        '@type' => 'Article',
-        '@id' => get_permalink() . '#article',
-        'headline' => get_the_title(),
-        'description' => get_the_excerpt() ?: get_bloginfo('description'),
-        'url' => get_permalink(),
-        'datePublished' => get_the_date('c'),
-        'dateModified' => get_the_modified_date('c'),
-        'author' => [
-            '@type' => 'Organization',
-            'name' => haupt_get_company_name(),
-        ],
-        'publisher' => [
-            '@id' => home_url() . '#organization',
-        ],
-        'articleSection' => $sector ?: 'Career Guides',
-    ];
+    // Add expertise / dependencies (qualifications)
+    if ($qualifications) {
+        $schema['dependencies'] = $qualifications;
+    }
+    
+    // Add salary info if available
+    if ($salary_range) {
+        $schema['about']['description'] .= ' Typical salary range: ' . $salary_range . '.';
+    }
+    
+    // Add keywords from categories
+    if (!empty($category_names)) {
+        $schema['keywords'] = implode(', ', $category_names);
+    }
     
     if (has_post_thumbnail()) {
         $schema['image'] = [
@@ -496,13 +628,9 @@ function haupt_get_career_guide_schema() {
             'width' => 1200,
             'height' => 630,
         ];
-        $article_schema['image'] = $schema['image'];
     }
     
-    $output = '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
-    $output .= "\n" . '<script type="application/ld+json">' . wp_json_encode($article_schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
-    
-    return $output;
+    return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
 }
 
 /**
@@ -811,8 +939,13 @@ function haupt_get_job_list_schema() {
 
 /**
  * Get meta description helper
+ * Falls back to haupt_get_seo_description() if available (template-functions.php)
  */
 function haupt_get_meta_description() {
+    if (function_exists('haupt_get_seo_description')) {
+        return haupt_get_seo_description();
+    }
+    
     if (is_singular()) {
         $excerpt = get_the_excerpt();
         if ($excerpt) {
@@ -838,16 +971,27 @@ add_action('wp_head', function() {
     // Organization schema (always output)
     echo haupt_get_organization_schema() . "\n";
     
-    // LocalBusiness schema for homepage and contact
-    if (is_front_page() || is_page('contact')) {
+    // LocalBusiness schema for homepage, contact and about pages
+    if (is_front_page() || is_page('contact') || is_page('about-us')) {
         echo haupt_get_localbusiness_schema() . "\n";
     }
     
     // WebSite schema
     echo haupt_get_website_schema() . "\n";
     
-    // WebPage schema
-    echo haupt_get_webpage_schema() . "\n";
+    // Custom page schema type override (if set in editor)
+    $custom_schema = '';
+    if (function_exists('haupt_get_custom_page_schema')) {
+        $custom_schema = haupt_get_custom_page_schema();
+    }
+    
+    if ($custom_schema) {
+        // User has selected a custom schema type - use it instead of generic WebPage
+        echo $custom_schema . "\n";
+    } else {
+        // Default WebPage schema
+        echo haupt_get_webpage_schema() . "\n";
+    }
     
     // Breadcrumb schema
     echo haupt_get_breadcrumb_schema() . "\n";
@@ -872,6 +1016,11 @@ add_action('wp_head', function() {
         echo haupt_get_contactpage_schema() . "\n";
     }
     
+    // About page schema
+    if (is_page('about-us')) {
+        echo haupt_get_aboutpage_schema() . "\n";
+    }
+    
     // FAQ schema (if present on page)
     $faq_schema = haupt_get_faq_schema();
     if ($faq_schema) {
@@ -892,7 +1041,7 @@ add_filter('body_class', function($classes) {
         $classes[] = 'schema-jobposting';
     }
     if (is_singular('role_expertise')) {
-        $classes[] = 'schema-learningresource';
+        $classes[] = 'schema-techarticle';
     }
     if (is_front_page()) {
         $classes[] = 'schema-homepage';

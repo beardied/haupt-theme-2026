@@ -361,6 +361,7 @@ require_once HAUPT_DIR . '/inc/theme-options.php';
 require_once HAUPT_DIR . '/inc/admin-settings.php';
 require_once HAUPT_DIR . '/inc/taxonomy-images.php';
 require_once HAUPT_DIR . '/inc/schema.php';
+require_once HAUPT_DIR . '/inc/schema-meta-box.php';
 require_once HAUPT_DIR . '/inc/breadcrumbs.php';
 require_once HAUPT_DIR . '/inc/template-functions.php';
 require_once HAUPT_DIR . '/inc/sitemap.php';
