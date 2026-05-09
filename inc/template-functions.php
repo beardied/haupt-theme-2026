@@ -233,20 +233,6 @@ add_filter('image_size_names_choose', function($sizes) {
 });
 
 /**
- * Excerpt more link
- */
-add_filter('excerpt_more', function($more) {
-    return '...';
-});
-
-/**
- * Custom excerpt length
- */
-add_filter('excerpt_length', function($length) {
-    return 25;
-}, 999);
-
-/**
  * Add responsive embed wrapper
  */
 add_filter('embed_oembed_html', function($html, $url, $attr, $post_id) {

@@ -217,6 +217,9 @@ add_action('wp_enqueue_scripts', function() {
         'homeUrl' => home_url(),
     ]);
     
+    // Remove feed enqueues
+    wp_dequeue_style('wp-block-library-theme');
+    
     // Comment reply script
     if (is_singular() && comments_open() && get_option('thread_comments')) {
         wp_enqueue_script('comment-reply');
@@ -348,11 +351,6 @@ add_filter('rewrite_rules_array', function($rules) {
     }
     return $rules;
 });
-
-// Remove feed enqueues
-add_action('wp_enqueue_scripts', function() {
-    wp_dequeue_style('wp-block-library-theme');
-}, 100);
 
 /**
  * Include required files

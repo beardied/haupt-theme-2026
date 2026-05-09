@@ -82,13 +82,6 @@ function haupt_get_address() {
 }
 
 /**
- * Get social URL
- */
-function haupt_get_social($network) {
-    return haupt_get_option($network . '_url');
-}
-
-/**
  * Get stat value
  */
 function haupt_get_stat($stat) {

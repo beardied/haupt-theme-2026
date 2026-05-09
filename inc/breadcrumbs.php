@@ -7,14 +7,9 @@
  */
 
 /**
- * Generate breadcrumbs
+ * Build breadcrumb data array (shared by HTML breadcrumbs and schema)
  */
-function haupt_get_breadcrumbs() {
-    // Don't show on homepage
-    if (is_front_page()) {
-        return '';
-    }
-    
+function haupt_build_breadcrumb_data() {
     $breadcrumbs = [];
     $breadcrumbs[] = [
         'title' => __('Home', 'haupt-recruitment'),
@@ -197,6 +192,20 @@ function haupt_get_breadcrumbs() {
             'url' => '',
         ];
     }
+    
+    return $breadcrumbs;
+}
+
+/**
+ * Generate breadcrumb HTML
+ */
+function haupt_get_breadcrumbs() {
+    // Don't show on homepage
+    if (is_front_page()) {
+        return '';
+    }
+    
+    $breadcrumbs = haupt_build_breadcrumb_data();
     
     // Build HTML
     $html = '<nav class="breadcrumbs" aria-label="' . esc_attr__('Breadcrumb', 'haupt-recruitment') . '">';

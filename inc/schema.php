@@ -160,29 +160,12 @@ function haupt_get_breadcrumb_schema() {
 }
 
 function haupt_get_breadcrumbs_array() {
-    $b = [['title'=>'Home','url'=>home_url()]];
-
-    if (is_singular('job')) {
-        $b[] = ['title'=>'Jobs','url'=>get_post_type_archive_link('job')];
-        $b[] = ['title'=>get_the_title(),'url'=>''];
-    } elseif (is_singular('role_expertise')) {
-        $parent = wp_get_post_parent_id(get_the_ID());
-        if ($parent) {
-            $b[] = ['title'=>get_the_title($parent),'url'=>get_permalink($parent)];
-        } else {
-            $b[] = ['title'=>'Career Guides','url'=>get_post_type_archive_link('role_expertise')];
-        }
-        $b[] = ['title'=>get_the_title(),'url'=>''];
-    } elseif (is_singular()) {
-        $pt = get_post_type_object(get_post_type());
-        if ($pt && get_post_type() !== 'page') {
-            $b[] = ['title'=>$pt->label,'url'=>get_post_type_archive_link(get_post_type())];
-        }
-        $b[] = ['title'=>get_the_title(),'url'=>''];
-    } elseif (is_archive()) {
-        $b[] = ['title'=>get_the_archive_title(),'url'=>''];
+    // Use the shared breadcrumb builder from breadcrumbs.php
+    if (function_exists('haupt_build_breadcrumb_data')) {
+        return haupt_build_breadcrumb_data();
     }
-    return $b;
+    // Fallback if breadcrumbs.php isn't loaded
+    return [['title'=>'Home','url'=>home_url('/')]];
 }
 
 // ============================================
