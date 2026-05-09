@@ -328,30 +328,9 @@ function haupt_get_aboutpage_schema() {
             '@id' => home_url() . '#website',
         ],
         'mainEntity' => [
-            '@type' => 'Organization',
             '@id' => home_url() . '#organization',
-            'name' => haupt_get_company_name(),
-            'url' => home_url(),
-            'logo' => haupt_get_schema_logo_url(),
-            'sameAs' => [],
         ],
     ];
-    
-    // Add social profiles
-    $socials = ['linkedin', 'twitter', 'facebook', 'instagram'];
-    foreach ($socials as $platform) {
-        $url = haupt_get_social_url($platform);
-        if ($url) {
-            $schema['mainEntity']['sameAs'][] = $url;
-        }
-    }
-    
-    if ($phone) {
-        $schema['mainEntity']['telephone'] = $phone;
-    }
-    if ($email) {
-        $schema['mainEntity']['email'] = $email;
-    }
     
     if (has_post_thumbnail()) {
         $schema['image'] = [
@@ -383,9 +362,7 @@ function haupt_get_article_schema() {
         'datePublished' => get_the_date('c'),
         'dateModified' => get_the_modified_date('c'),
         'author' => [
-            '@type' => 'Person',
-            'name' => get_the_author(),
-            'url' => get_author_posts_url(get_the_author_meta('ID')),
+            '@id' => home_url() . '#organization',
         ],
         'publisher' => [
             '@id' => home_url() . '#organization',
@@ -582,8 +559,6 @@ function haupt_get_career_guide_schema() {
         'datePublished' => get_the_date('c'),
         'dateModified' => get_the_modified_date('c'),
         'author' => [
-            '@type' => 'Organization',
-            'name' => haupt_get_company_name(),
             '@id' => home_url() . '#organization',
         ],
         'publisher' => [
@@ -662,10 +637,7 @@ function haupt_get_contactpage_schema() {
         'name' => get_the_title(),
         'description' => 'Contact ' . haupt_get_company_name() . ' for recruitment services in the UK power sector.',
         'mainEntity' => [
-            '@type' => 'Organization',
             '@id' => home_url() . '#organization',
-            'telephone' => $phones ?: haupt_get_phone(),
-            'email' => $emails ?: haupt_get_email(),
         ],
     ];
     
@@ -966,68 +938,86 @@ function haupt_get_meta_description() {
 
 /**
  * Output all schema
+ * 
+ * Schema output rules:
+ * - Organization: Only on pages where other schemas reference it (@id linkage)
+ *   = Homepage, Contact, About, Job single, Career Guide single, Blog post single
+ * - LocalBusiness (EmploymentAgency): Homepage and Contact only
+ * - WebSite: All pages
+ * - WebPage: All pages (or custom type override)
+ * - BreadcrumbList: All pages
+ * - Specific schemas: Only on their respective page types
  */
 add_action('wp_head', function() {
-    // Organization schema (always output)
-    echo haupt_get_organization_schema() . "\n";
     
-    // LocalBusiness schema for homepage, contact and about pages
-    if (is_front_page() || is_page('contact') || is_page('about-us')) {
+    // Organization schema: only on pages where other schemas REFERENCE it via @id.
+    // JobPosting embeds a full Organization as hiringOrganization (Google requirement),
+    // so job pages do NOT need the standalone copy.
+    $needs_standalone_organization = is_front_page() 
+        || is_page('contact')
+        || is_page('about-us')
+        || is_singular('role_expertise')
+        || is_singular('post');
+    
+    if ($needs_standalone_organization) {
+        echo haupt_get_organization_schema() . "\n";
+    }
+    
+    // LocalBusiness schema: homepage and contact page only
+    if (is_front_page() || is_page('contact')) {
         echo haupt_get_localbusiness_schema() . "\n";
     }
     
-    // WebSite schema
+    // WebSite schema: all pages
     echo haupt_get_website_schema() . "\n";
     
-    // Custom page schema type override (if set in editor)
+    // WebPage schema (or custom override): all pages
     $custom_schema = '';
     if (function_exists('haupt_get_custom_page_schema')) {
         $custom_schema = haupt_get_custom_page_schema();
     }
     
     if ($custom_schema) {
-        // User has selected a custom schema type - use it instead of generic WebPage
         echo $custom_schema . "\n";
     } else {
-        // Default WebPage schema
         echo haupt_get_webpage_schema() . "\n";
     }
     
-    // Breadcrumb schema
+    // BreadcrumbList schema: all pages
     echo haupt_get_breadcrumb_schema() . "\n";
     
-    // Article schema for posts
+    // Article schema: blog posts only
     if (is_singular('post')) {
         echo haupt_get_article_schema() . "\n";
     }
     
-    // JobPosting schema for job listings
+    // JobPosting schema: job single pages only
     if (is_singular('job')) {
         echo haupt_get_jobposting_schema() . "\n";
     }
     
-    // Career guide schema
+    // TechArticle schema: career guide single pages only
     if (is_singular('role_expertise')) {
         echo haupt_get_career_guide_schema() . "\n";
     }
     
-    // Contact page schema
+    // ContactPage schema: contact page only
     if (is_page('contact')) {
         echo haupt_get_contactpage_schema() . "\n";
     }
     
-    // About page schema
+    // AboutPage schema: about page only
     if (is_page('about-us')) {
         echo haupt_get_aboutpage_schema() . "\n";
     }
     
-    // FAQ schema (if present on page)
+    // FAQPage schema: any page with FAQ content
     $faq_schema = haupt_get_faq_schema();
     if ($faq_schema) {
         echo $faq_schema . "\n";
     }
     
-    // Job list schema for archives
+    // ItemList schema: job archive only
     if (is_post_type_archive('job')) {
         echo haupt_get_job_list_schema() . "\n";
     }

@@ -51,9 +51,6 @@
     <link rel="canonical" href="<?php echo esc_url(get_permalink()); ?>">
     
     <?php wp_head(); ?>
-    
-    <!-- Schema.org Organization Markup -->
-    <?php echo haupt_get_organization_schema(); ?>
 </head>
 
 <body <?php body_class(); ?>>

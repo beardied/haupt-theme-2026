@@ -235,10 +235,6 @@ function haupt_get_breadcrumbs() {
     
     $html .= '</ol>';
     $html .= '</div>';
-    
-    // JSON-LD Schema
-    $html .= haupt_get_breadcrumb_schema($breadcrumbs);
-    
     $html .= '</nav>';
     
     return $html;

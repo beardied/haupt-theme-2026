@@ -147,9 +147,6 @@ while (have_posts()) :
                         </div>
                     </div>
                     
-                    <!-- FAQ Schema -->
-                    <?php echo haupt_get_faq_schema(); ?>
-                    
                 </div>
                 
                 <!-- Sidebar -->

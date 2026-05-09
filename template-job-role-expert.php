@@ -195,9 +195,6 @@ while (have_posts()) :
     </div>
 </article>
 
-<!-- FAQ Schema -->
-<?php echo haupt_get_faq_schema(); ?>
-
 <!-- Related Job Roles -->
 <?php if (!empty($related_roles)) : ?>
 <section class="section" id="related-roles">

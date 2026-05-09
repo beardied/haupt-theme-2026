@@ -124,8 +124,6 @@ while (have_posts()) :
                         }
                         ?>
                         
-                        <!-- FAQ Schema -->
-                        <?php echo haupt_get_faq_schema(); ?>
                     </div>
                     
                     <!-- Sidebar -->
