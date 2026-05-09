@@ -51,9 +51,9 @@ function haupt_get_organization_schema() {
         ];
 
         if (count($offices) > 1) {
-            $schema['location'] = [];
+            $schema['department'] = [];
             foreach ($offices as $office) {
-                $schema['location'][] = [
+                $schema['department'][] = [
                     '@type'         => 'Place',
                     'name'          => $office['name'] ?? $name . ' Office',
                     'telephone'     => $office['phone'] ?? '',
@@ -120,6 +120,7 @@ function haupt_get_webpage_schema() {
         'description' => $desc,
         'inLanguage'  => get_locale(),
         'isPartOf'    => ['@id' => home_url() . '#website'],
+        'about'       => ['@id' => home_url() . '#organization'],
     ];
 
     if (has_post_thumbnail()) {
@@ -138,6 +139,8 @@ function haupt_get_webpage_schema() {
 // BREADCRUMBS (All pages)
 // ============================================
 function haupt_get_breadcrumb_schema() {
+    // No breadcrumbs on homepage
+    if (is_front_page()) return '';
     $crumbs = haupt_get_breadcrumbs_array();
     if (empty($crumbs)) return '';
 
@@ -210,6 +213,7 @@ function haupt_get_jobposting_schema($post_id = null) {
         ],
         'hiringOrganization' => [
             '@type' => 'Organization',
+            '@id'   => home_url() . '#organization',
             'name'  => $company ?: haupt_get_company_name(),
             'logo'  => haupt_get_schema_logo_url(),
             'url'   => home_url(),
@@ -278,6 +282,11 @@ function haupt_get_career_guide_schema() {
         'author'   => ['@id' => home_url() . '#organization'],
         'publisher'=> ['@id' => home_url() . '#organization'],
         'isPartOf' => ['@id' => get_permalink() . '#webpage'],
+        'about'    => [
+            '@type' => 'Thing',
+            'name'  => get_the_title(),
+            'description' => 'Career guide and role information for ' . get_the_title() . ' positions in the UK energy sector.',
+        ],
         'articleSection' => $sector ?: 'Career Guides',
         'inLanguage' => 'en-GB',
     ];
@@ -322,6 +331,27 @@ function haupt_get_article_schema() {
             'height'=> 630,
         ];
     }
+
+    return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
+}
+
+// ============================================
+// CONTACT PAGE (Contact page only)
+// ============================================
+function haupt_get_contactpage_schema() {
+    if (!is_page('contact')) return '';
+
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type'    => 'ContactPage',
+        '@id'      => get_permalink() . '#contactpage',
+        'url'      => get_permalink(),
+        'name'     => get_the_title(),
+        'description' => 'Contact ' . haupt_get_company_name() . ' for recruitment services in the UK power sector.',
+        'inLanguage' => get_locale(),
+        'isPartOf'   => ['@id' => home_url() . '#website'],
+        'about'      => ['@id' => home_url() . '#organization'],
+    ];
 
     return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
 }
@@ -431,6 +461,11 @@ add_action('wp_head', function() {
     // TechArticle: career guides
     if (is_singular('role_expertise')) {
         echo haupt_get_career_guide_schema() . "\n";
+    }
+
+    // ContactPage: contact page only
+    if (is_page('contact')) {
+        echo haupt_get_contactpage_schema() . "\n";
     }
 
     // FAQ: any page with FAQ content
