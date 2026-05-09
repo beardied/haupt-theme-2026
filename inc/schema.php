@@ -38,7 +38,7 @@ function haupt_get_organization_schema() {
         if ($social_url) $schema['sameAs'][] = $social_url;
     }
 
-    // Primary office address
+    // Primary office address + all locations
     if (!empty($offices)) {
         $primary = $offices[0];
         $schema['address'] = [
@@ -49,6 +49,25 @@ function haupt_get_organization_schema() {
             'postalCode'      => $primary['postcode'] ?? '',
             'addressCountry'  => 'GB',
         ];
+
+        if (count($offices) > 1) {
+            $schema['location'] = [];
+            foreach ($offices as $office) {
+                $schema['location'][] = [
+                    '@type'         => 'Place',
+                    'name'          => $office['name'] ?? $name . ' Office',
+                    'telephone'     => $office['phone'] ?? '',
+                    'address'       => [
+                        '@type'           => 'PostalAddress',
+                        'streetAddress'   => $office['address'] ?? '',
+                        'addressLocality' => $office['city'] ?? '',
+                        'addressRegion'   => $office['region'] ?? '',
+                        'postalCode'      => $office['postcode'] ?? '',
+                        'addressCountry'  => 'GB',
+                    ],
+                ];
+            }
+        }
     }
 
     return '<script type="application/ld+json">' . wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</script>';
