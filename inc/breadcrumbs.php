@@ -201,7 +201,7 @@ function haupt_get_breadcrumbs() {
     // Build HTML
     $html = '<nav class="breadcrumbs" aria-label="' . esc_attr__('Breadcrumb', 'haupt-recruitment') . '">';
     $html .= '<div class="container breadcrumbs-container">';
-    $html .= '<ol class="breadcrumbs-list" itemscope itemtype="https://schema.org/BreadcrumbList">';
+    $html .= '<ol class="breadcrumbs-list">';
     
     $position = 1;
     $total = count($breadcrumbs);
@@ -209,17 +209,16 @@ function haupt_get_breadcrumbs() {
     foreach ($breadcrumbs as $index => $crumb) {
         $is_last = ($index === $total - 1);
         
-        $html .= '<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
-        
+        $html .= '<li>';
+
         if ($is_last || empty($crumb['url'])) {
-            $html .= '<span itemprop="name">' . esc_html($crumb['title']) . '</span>';
+            $html .= '<span>' . esc_html($crumb['title']) . '</span>';
         } else {
-            $html .= '<a href="' . esc_url($crumb['url']) . '" itemprop="item">';
-            $html .= '<span itemprop="name">' . esc_html($crumb['title']) . '</span>';
+            $html .= '<a href="' . esc_url($crumb['url']) . '">';
+            $html .= '<span>' . esc_html($crumb['title']) . '</span>';
             $html .= '</a>';
         }
-        
-        $html .= '<meta itemprop="position" content="' . $position . '" />';
+
         $html .= '</li>';
         
         if (!$is_last) {

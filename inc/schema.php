@@ -347,6 +347,8 @@ function haupt_get_article_schema() {
 // FAQ PAGE (Any page with FAQ content)
 // ============================================
 function haupt_get_faq_schema() {
+    // Only output FAQ schema on singular pages where the content itself has FAQs
+    if (!is_singular()) return '';
     global $post;
     if (!$post) return '';
 
